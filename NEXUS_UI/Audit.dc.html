@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;height:100%}
+  body{background:#04060e;color:#eaf1ff;font-family:'Manrope',system-ui,sans-serif;overflow:hidden;-webkit-font-smoothing:antialiased}
+  canvas{display:block}
+  a{text-decoration:none;color:inherit}
+  @keyframes nxpulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.35;transform:scale(.82)}}
+  @keyframes nxspin{to{transform:rotate(360deg)}}
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="./nexus-district.js"></script>
+<script src="./nexus-api.js"></script>
+</helmet>
+
+<canvas id="nx-scene" style="position:fixed;inset:0;width:100vw;height:100vh;z-index:0;"></canvas>
+<div style="position:fixed;inset:0;z-index:1;pointer-events:none;background:radial-gradient(120% 80% at 50% -10%,rgba(40,110,210,0.13),transparent 55%),radial-gradient(140% 120% at 50% 120%,rgba(0,0,0,0.72),transparent 60%);box-shadow:inset 0 0 240px 50px rgba(0,0,0,0.85)"></div>
+
+<div id="nx-loader" style="position:fixed;inset:0;z-index:80;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:22px;background:#04060e;transition:opacity .9s ease;">
+  <div style="width:46px;height:46px;border-radius:50%;border:2px solid rgba(74,163,255,0.2);border-top-color:#4aa3ff;animation:nxspin 1s linear infinite"></div>
+  <div style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.32em;color:#5d76a8;text-transform:uppercase">Entering Verification Tower</div>
+</div>
+
+<nav style="position:fixed;top:0;left:0;right:0;z-index:40;display:flex;align-items:center;justify-content:space-between;padding:20px 34px;pointer-events:none;">
+  <a href="NEXUS%20World.dc.html" style="display:flex;align-items:center;gap:12px;pointer-events:auto">
+    <div style="width:32px;height:32px;border-radius:9px;background:linear-gradient(150deg,#3b82f6,#1f4fd6);display:flex;align-items:center;justify-content:center;box-shadow:0 6px 22px -4px rgba(59,130,246,0.7),inset 0 1px 0 rgba(255,255,255,0.3)"><div style="width:13px;height:13px;border:2.5px solid #fff;border-radius:4px;transform:rotate(45deg)"></div></div>
+    <span style="font-family:'Space Grotesk';font-weight:700;font-size:20px;letter-spacing:.16em">NEXUS</span>
+    <span style="font-family:'JetBrains Mono';font-size:11px;color:#6a7da0;letter-spacing:.12em;margin-left:6px;padding-left:14px;border-left:1px solid rgba(120,150,210,0.25)">VERIFICATION&nbsp;TOWER</span>
+  </a>
+  <div style="display:flex;gap:12px;align-items:center;pointer-events:auto">
+    <div style="display:flex;align-items:center;gap:8px;background:rgba(12,30,24,0.5);border:1px solid rgba(74,222,128,0.3);border-radius:9px;padding:9px 14px;backdrop-filter:blur(10px)"><span style="width:7px;height:7px;border-radius:50%;background:#4ade80;box-shadow:0 0 8px #4ade80;animation:nxpulse 2s infinite"></span><span style="font-family:'JetBrains Mono';font-size:11.5px;color:#7fe6a3;letter-spacing:.06em">PROOFMESH&nbsp;LIVE</span></div>
+    <button style="background:linear-gradient(150deg,#3b82f6,#2454d8);border:none;color:#fff;font-family:'Manrope';font-weight:700;font-size:13.5px;padding:10px 20px;border-radius:9px;cursor:pointer;box-shadow:0 8px 26px -8px rgba(59,130,246,0.8)">Open ProofMesh</button>
+  </div>
+</nav>
+
+<div id="nx-dock" style="position:fixed;left:22px;top:50%;transform:translateY(-50%);z-index:45;display:flex;flex-direction:column;gap:6px;padding:12px 10px;background:linear-gradient(180deg,rgba(11,18,34,0.7),rgba(7,12,24,0.66));border:1px solid rgba(74,130,230,0.2);border-radius:16px;backdrop-filter:blur(16px);pointer-events:auto;box-shadow:0 24px 60px -20px rgba(0,0,0,0.7)">
+  <a href="NEXUS%20World.dc.html" data-dk="world" style="display:flex;flex-direction:column;align-items:center;gap:4px;width:64px;padding:10px 4px;border-radius:11px"><span style="font-size:17px">&#9678;</span><span style="font-family:'JetBrains Mono';font-size:8.5px;letter-spacing:.06em;color:#7e8db0">WORLD</span></a>
+  <a href="Marketplace.dc.html" data-dk="marketplace" style="display:flex;flex-direction:column;align-items:center;gap:4px;width:64px;padding:10px 4px;border-radius:11px"><span style="font-size:17px">&#128101;</span><span style="font-family:'JetBrains Mono';font-size:8.5px;letter-spacing:.06em;color:#7e8db0">AGENTS</span></a>
+  <a href="Network.dc.html" data-dk="network" style="display:flex;flex-direction:column;align-items:center;gap:4px;width:64px;padding:10px 4px;border-radius:11px"><span style="font-size:17px">&#127760;</span><span style="font-family:'JetBrains Mono';font-size:8.5px;letter-spacing:.06em;color:#7e8db0">NETWORK</span></a>
+  <a href="Audit.dc.html" data-dk="audit" style="display:flex;flex-direction:column;align-items:center;gap:4px;width:64px;padding:10px 4px;border-radius:11px"><span style="font-size:17px">&#128737;</span><span style="font-family:'JetBrains Mono';font-size:8.5px;letter-spacing:.06em;color:#7e8db0">AUDIT</span></a>
+  <a href="Execution.dc.html" data-dk="execution" style="display:flex;flex-direction:column;align-items:center;gap:4px;width:64px;padding:10px 4px;border-radius:11px"><span style="font-size:17px">&#9889;</span><span style="font-family:'JetBrains Mono';font-size:8.5px;letter-spacing:.06em;color:#7e8db0">EXECUTE</span></a>
+  <a href="Treasury.dc.html" data-dk="treasury" style="display:flex;flex-direction:column;align-items:center;gap:4px;width:64px;padding:10px 4px;border-radius:11px"><span style="font-size:17px">&#128176;</span><span style="font-family:'JetBrains Mono';font-size:8.5px;letter-spacing:.06em;color:#7e8db0">TREASURY</span></a>
+  <a href="SoulMint.dc.html" data-dk="soulmint" style="display:flex;flex-direction:column;align-items:center;gap:4px;width:64px;padding:10px 4px;border-radius:11px"><span style="font-size:17px">&#9672;</span><span style="font-family:'JetBrains Mono';font-size:8.5px;letter-spacing:.06em;color:#7e8db0">IDENTITY</span></a>
+</div>
+
+<div style="position:fixed;left:108px;top:90px;z-index:35;width:320px;pointer-events:auto">
+  <div style="font-family:'JetBrains Mono';font-size:11px;letter-spacing:.26em;color:#4aa3ff;text-transform:uppercase">ProofMesh &middot; Audit Layer</div>
+  <h1 style="font-family:'Space Grotesk';font-weight:700;font-size:36px;line-height:1.04;margin:10px 0 0;letter-spacing:-0.01em">Verification Tower</h1>
+  <p style="font-size:14px;line-height:1.5;color:#aab7d4;margin:12px 0 0">Inside the tower, every task becomes cryptographic proof &mdash; TEE-signed, attested on-chain, and traceable end to end.</p>
+  <div style="margin-top:18px;background:linear-gradient(160deg,rgba(11,20,38,0.74),rgba(7,12,24,0.68));border:1px solid rgba(74,130,230,0.24);border-radius:14px;padding:14px 16px;backdrop-filter:blur(12px);width:264px">
+    <div style="font-family:'JetBrains Mono';font-size:10px;letter-spacing:.18em;color:#6a7da0;text-transform:uppercase">Selected proof</div>
+    <div id="ad-proof-id" style="font-family:'JetBrains Mono';font-size:13.5px;color:#9fc6ff;margin-top:6px">PROOF-8F3A-7A2D</div>
+    <div style="display:flex;flex-direction:column;gap:7px;margin-top:12px;font-family:'JetBrains Mono';font-size:11.5px">
+      <div style="display:flex;align-items:center;gap:9px;color:#9fb0d0"><span style="color:#4ade80">&#10003;</span>Task initiated<span style="margin-left:auto;color:#6a7da0">14:20:11</span></div>
+      <div style="display:flex;align-items:center;gap:9px;color:#9fb0d0"><span style="color:#4ade80">&#10003;</span>Execution complete<span style="margin-left:auto;color:#6a7da0">14:21:37</span></div>
+      <div style="display:flex;align-items:center;gap:9px;color:#9fb0d0"><span style="color:#4ade80">&#10003;</span>Proof generated<span style="margin-left:auto;color:#6a7da0">14:21:43</span></div>
+      <div style="display:flex;align-items:center;gap:9px;color:#7fb0ff"><span style="color:#4aa3ff">&#9673;</span>Attested on-chain<span style="margin-left:auto;color:#6a7da0">14:22:11</span></div>
+    </div>
+  </div>
+</div>
+
+<div id="nx-anchors" style="position:fixed;inset:0;z-index:20;pointer-events:none"></div>
+
+<div style="position:fixed;right:24px;top:84px;z-index:35;width:288px;pointer-events:auto;background:linear-gradient(165deg,rgba(11,20,38,0.86),rgba(7,12,24,0.82));border:1px solid rgba(74,130,230,0.3);border-radius:18px;backdrop-filter:blur(18px);padding:20px;box-shadow:0 30px 80px -24px rgba(0,0,0,0.85),inset 0 1px 0 rgba(140,180,255,0.1)">
+  <div style="display:flex;align-items:center;justify-content:space-between"><span style="font-family:'Space Grotesk';font-weight:700;font-size:15px">Latest Attestation</span><span style="font-family:'JetBrains Mono';font-size:9.5px;color:#4ade80;background:rgba(74,222,128,0.12);border:1px solid rgba(74,222,128,0.3);border-radius:6px;padding:3px 8px">SETTLED</span></div>
+  <div id="ad-att-id" style="font-family:'JetBrains Mono';font-size:13px;color:#9fc6ff;margin-top:12px">ATT-9C7B-2E11</div>
+  <div style="display:flex;align-items:center;gap:9px;margin-top:12px;padding:11px;border:1px solid rgba(74,130,230,0.18);border-radius:12px;background:rgba(74,163,255,0.06)">
+    <div style="width:34px;height:34px;border-radius:9px;background:linear-gradient(150deg,#4aa3ff,#2454d8);flex:none"></div>
+    <div><div style="font-size:10.5px;color:#8694b4">Attested by</div><div style="font-size:13px;font-weight:600;display:flex;align-items:center;gap:5px">NEXUS Validator 42 <span style="color:#4aa3ff;font-size:11px">&#10003;</span></div></div>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:9px;margin-top:14px;font-size:12px">
+    <div style="display:flex;justify-content:space-between"><span style="color:#8694b4">Amount</span><span style="font-family:'JetBrains Mono';color:#eaf1ff">89.76 USDC</span></div>
+    <div style="display:flex;justify-content:space-between"><span style="color:#8694b4">Method</span><span style="font-family:'JetBrains Mono';color:#b7c4e0">TEE + Multi-Sig</span></div>
+    <div><div style="display:flex;justify-content:space-between;font-size:12px"><span style="color:#8694b4">Proof score</span><span style="font-family:'JetBrains Mono';color:#4ade80">98.7 / 100</span></div><div style="height:5px;border-radius:3px;background:rgba(255,255,255,0.06);margin-top:5px"><div style="height:100%;width:98.7%;background:linear-gradient(90deg,#4aa3ff,#4ade80);border-radius:3px"></div></div></div>
+    <div><div style="display:flex;justify-content:space-between;font-size:12px"><span style="color:#8694b4">Risk score</span><span style="font-family:'JetBrains Mono';color:#4ade80">1.3 / 100</span></div><div style="height:5px;border-radius:3px;background:rgba(255,255,255,0.06);margin-top:5px"><div style="height:100%;width:6%;background:#4ade80;border-radius:3px"></div></div></div>
+  </div>
+  <div style="margin-top:16px;padding-top:14px;border-top:1px solid rgba(74,130,230,0.16);display:flex;gap:14px">
+    <div><div id="ad-att-count" style="font-family:'Space Grotesk';font-weight:700;font-size:17px">12,841</div><div style="font-size:10px;color:#8694b4">Composite receipts</div></div>
+    <div><div style="font-family:'Space Grotesk';font-weight:700;font-size:17px;color:#4ade80">100%</div><div style="font-size:10px;color:#8694b4">Proof-derived</div></div>
+  </div>
+  <button id="ad-view" style="width:100%;margin-top:16px;background:rgba(74,163,255,0.1);border:1px solid rgba(74,130,230,0.32);color:#9fc6ff;font-family:'Manrope';font-weight:600;font-size:13px;padding:11px;border-radius:10px;cursor:pointer">View on chainscan &#8594;</button>
+</div>
+
+<div style="position:fixed;left:108px;bottom:24px;z-index:35;display:flex;align-items:center;gap:16px;font-family:'JetBrains Mono';font-size:11px;color:#8694b4;pointer-events:auto;background:rgba(9,15,28,0.6);border:1px solid rgba(74,130,230,0.18);border-radius:12px;padding:10px 16px;backdrop-filter:blur(12px)">
+  <span style="display:flex;align-items:center;gap:7px;color:#4ade80"><span style="width:6px;height:6px;border-radius:50%;background:#4ade80;box-shadow:0 0 8px #4ade80;animation:nxpulse 2s infinite"></span>VERIFYING</span>
+  <span id="ad-feed">Proof verified &middot; PROOF-8F3A…7A2D</span>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  componentDidMount() {
+    const dk = document.querySelector('#nx-dock [data-dk="audit"]');
+    if (dk) { dk.style.background = 'linear-gradient(150deg,rgba(74,163,255,0.3),rgba(59,130,246,0.16))'; dk.style.boxShadow = 'inset 0 0 0 1px rgba(74,163,255,0.5)'; dk.querySelector('span:last-child').style.color = '#9fc6ff'; }
+    this.proofs = [
+      { id: 'p1', label: 'Proof verified', sub: 'PROOF-8F3A · TEE signed', tone: '#4ade80', pos: [-16, 40, 12] },
+      { id: 'p2', label: 'Attested', sub: 'Validator Node 42', tone: '#4aa3ff', pos: [18, 44, -8] },
+      { id: 'p3', label: 'Receipt settled', sub: 'RCPT-2E11 · 89.76 USDC', tone: '#4ade80', pos: [22, 24, 10] },
+      { id: 'p4', label: '3 pending', sub: 'In verification queue', tone: '#f5b740', pos: [-14, 22, 16] }
+    ];
+    this.buildAnchors();
+    const feeds = ['Proof verified · PROOF-8F3A…7A2D', 'Attestation recorded · ATT-9C7B…2E11', 'Receipt settled · RCPT-2E11…5B7A', 'Trace bundle sealed · TB-7A2D…91F3', 'On-chain anchor · block 18,726,045'];
+    let fi = 0; this._tick = setInterval(() => { fi = (fi + 1) % feeds.length; const el = document.getElementById('ad-feed'); if (el) el.textContent = feeds[fi]; }, 1700);
+    this.loadProofs();
+    this.wait();
+  }
+  setText(id, v) { const el = document.getElementById(id); if (el) el.textContent = v; }
+  async loadProofs() {
+    if (!window.NexusAPI) return;
+    let receipts = [], net = null;
+    try { receipts = await NexusAPI.listReceipts(); net = await NexusAPI.network(); } catch (e) { return; }
+    if (net) {
+      this.setText('ad-att-count', net.totalReceipts);
+      this._minter = net.addresses && net.addresses.CompositeReceiptMinter;
+      const b = document.getElementById('ad-view');
+      if (b && this._minter) b.onclick = () => window.open(NexusAPI.addrUrl(this._minter), '_blank');
+    }
+    if (!receipts.length) return;
+    const top = receipts[0];
+    this.setText('ad-proof-id', 'RECEIPT #' + top.receiptId);
+    this.setText('ad-att-id', 'SESSION ' + NexusAPI.short(top.sessionId, 6, 4));
+    this.proofs.forEach((p, i) => {
+      const r = receipts[i];
+      const el = document.getElementById('an-' + p.id);
+      if (!el) return;
+      if (!r) { el.style.display = 'none'; return; }
+      const tone = r.hasPayment ? '#4ade80' : '#4aa3ff';
+      el.style.borderLeftColor = tone;
+      el.innerHTML = '<div style="display:flex;align-items:center;gap:8px"><span style="width:7px;height:7px;border-radius:50%;background:' + tone + ';box-shadow:0 0 8px ' + tone + '"></span><span style="font-family:\'Space Grotesk\';font-weight:600;font-size:12.5px">Receipt #' + r.receiptId + '</span></div><div style="font-family:\'JetBrains Mono\';font-size:10px;color:#9fb0d0;margin-top:5px">agent #' + r.agentId + ' · session ' + NexusAPI.short(r.sessionId, 4, 4) + '</div>';
+    });
+    clearInterval(this._tick);
+    const feeds = receipts.map(r => 'Composite receipt #' + r.receiptId + ' · agent #' + r.agentId + (r.hasPayment ? ' · paid' : ''));
+    let fi = 0; this._tick = setInterval(() => { fi = (fi + 1) % feeds.length; const el = document.getElementById('ad-feed'); if (el) el.textContent = feeds[fi]; }, 1700);
+  }
+  buildAnchors() {
+    const layer = document.getElementById('nx-anchors');
+    this.proofs.forEach(p => {
+      const el = document.createElement('div'); el.id = 'an-' + p.id;
+      el.style.cssText = 'position:absolute;left:0;top:0;opacity:0;pointer-events:auto;transition:opacity .5s;border:1px solid rgba(74,130,230,0.28);border-left:2px solid ' + p.tone + ';background:linear-gradient(160deg,rgba(11,20,38,0.9),rgba(7,12,24,0.86));backdrop-filter:blur(12px);border-radius:11px;padding:9px 12px;box-shadow:0 16px 40px -16px rgba(0,0,0,0.8);white-space:nowrap';
+      el.innerHTML = '<div style="display:flex;align-items:center;gap:8px"><span style="width:7px;height:7px;border-radius:50%;background:' + p.tone + ';box-shadow:0 0 8px ' + p.tone + '"></span><span style="font-family:\'Space Grotesk\';font-weight:600;font-size:12.5px">' + p.label + '</span></div><div style="font-family:\'JetBrains Mono\';font-size:10px;color:#9fb0d0;margin-top:5px">' + p.sub + '</div>';
+      layer.appendChild(el);
+    });
+  }
+  wait() { if (window.THREE && window.NexusDistrict) { this.init(); return; } this._w = setTimeout(() => this.wait(), 60); }
+  init() {
+    const anchors = this.proofs.map(p => ({ el: document.getElementById('an-' + p.id), pos: p.pos }));
+    this.ctrl = window.NexusDistrict.mount('nx-scene', {
+      theme: 'audit', accent: 0x4aa3ff, nodes: [], anchors,
+      camera: { pos: [44, 60, 56], look: [0, 48, 0] }
+    });
+    setTimeout(() => {
+      document.querySelectorAll('#nx-anchors > div').forEach(el => el.style.opacity = '1');
+      const l = document.getElementById('nx-loader'); if (l) { l.style.opacity = '0'; setTimeout(() => l.style.display = 'none', 950); }
+    }, 650);
+  }
+  componentWillUnmount() { clearTimeout(this._w); clearInterval(this._tick); if (this.ctrl) this.ctrl.dispose(); }
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

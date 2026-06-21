@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;height:100%}
+  body{background:#04060e;color:#eaf1ff;font-family:'Manrope',system-ui,sans-serif;overflow:hidden;-webkit-font-smoothing:antialiased}
+  canvas{display:block}
+  a{text-decoration:none;color:inherit}
+  @keyframes nxpulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.35;transform:scale(.82)}}
+  @keyframes nxspin{to{transform:rotate(360deg)}}
+  @keyframes nxglow{0%,100%{box-shadow:0 0 0 0 rgba(168,116,255,0)}50%{box-shadow:0 0 22px -2px rgba(168,116,255,0.7)}}
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="./nexus-district.js"></script>
+<script src="./nexus-api.js"></script>
+</helmet>
+
+<canvas id="nx-scene" style="position:fixed;inset:0;width:100vw;height:100vh;z-index:0;"></canvas>
+<div style="position:fixed;inset:0;z-index:1;pointer-events:none;background:radial-gradient(120% 80% at 50% 0%,rgba(124,92,255,0.16),transparent 55%),radial-gradient(140% 120% at 50% 120%,rgba(0,0,0,0.74),transparent 60%);box-shadow:inset 0 0 260px 60px rgba(0,0,0,0.86)"></div>
+
+<div id="nx-loader" style="position:fixed;inset:0;z-index:80;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:22px;background:#04060e;transition:opacity .9s ease;">
+  <div style="width:46px;height:46px;border-radius:50%;border:2px solid rgba(168,116,255,0.2);border-top-color:#a874ff;animation:nxspin 1s linear infinite"></div>
+  <div style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.32em;color:#8367b8;text-transform:uppercase">Initializing forge chamber</div>
+</div>
+
+<nav style="position:fixed;top:0;left:0;right:0;z-index:40;display:flex;align-items:center;justify-content:space-between;padding:20px 34px;pointer-events:none;">
+  <a href="NEXUS%20World.dc.html" style="display:flex;align-items:center;gap:12px;pointer-events:auto">
+    <div style="width:32px;height:32px;border-radius:9px;background:linear-gradient(150deg,#3b82f6,#1f4fd6);display:flex;align-items:center;justify-content:center;box-shadow:0 6px 22px -4px rgba(59,130,246,0.7),inset 0 1px 0 rgba(255,255,255,0.3)"><div style="width:13px;height:13px;border:2.5px solid #fff;border-radius:4px;transform:rotate(45deg)"></div></div>
+    <span style="font-family:'Space Grotesk';font-weight:700;font-size:20px;letter-spacing:.16em">NEXUS</span>
+    <span style="font-family:'JetBrains Mono';font-size:11px;color:#6a7da0;letter-spacing:.12em;margin-left:6px;padding-left:14px;border-left:1px solid rgba(120,150,210,0.25)">SOULMINT&nbsp;CHAMBER</span>
+  </a>
+  <div style="display:flex;gap:12px;align-items:center;pointer-events:auto"></div>
+</nav>
+
+<div id="nx-dock" style="position:fixed;left:22px;top:50%;transform:translateY(-50%);z-index:45;display:flex;flex-direction:column;gap:6px;padding:12px 10px;background:linear-gradient(180deg,rgba(11,18,34,0.7),rgba(7,12,24,0.66));border:1px solid rgba(74,130,230,0.2);border-radius:16px;backdrop-filter:blur(16px);pointer-events:auto;box-shadow:0 24px 60px -20px rgba(0,0,0,0.7)">
+  <a href="NEXUS%20World.dc.html" data-dk="world" style="display:flex;flex-direction:column;align-items:center;gap:4px;width:64px;padding:10px 4px;border-radius:11px"><span style="font-size:17px">&#9678;</span><span style="font-family:'JetBrains Mono';font-size:8.5px;letter-spacing:.06em;color:#7e8db0">WORLD</span></a>
+  <a href="Marketplace.dc.html" data-dk="marketplace" style="display:flex;flex-direction:column;align-items:center;gap:4px;width:64px;padding:10px 4px;border-radius:11px"><span style="font-size:17px">&#128101;</span><span style="font-family:'JetBrains Mono';font-size:8.5px;letter-spacing:.06em;color:#7e8db0">AGENTS</span></a>
+  <a href="Network.dc.html" data-dk="network" style="display:flex;flex-direction:column;align-items:center;gap:4px;width:64px;padding:10px 4px;border-radius:11px"><span style="font-size:17px">&#127760;</span><span style="font-family:'JetBrains Mono';font-size:8.5px;letter-spacing:.06em;color:#7e8db0">NETWORK</span></a>
+  <a href="Audit.dc.html" data-dk="audit" style="display:flex;flex-direction:column;align-items:center;gap:4px;width:64px;padding:10px 4px;border-radius:11px"><span style="font-size:17px">&#128737;</span><span style="font-family:'JetBrains Mono';font-size:8.5px;letter-spacing:.06em;color:#7e8db0">AUDIT</span></a>
+  <a href="Execution.dc.html" data-dk="execution" style="display:flex;flex-direction:column;align-items:center;gap:4px;width:64px;padding:10px 4px;border-radius:11px"><span style="font-size:17px">&#9889;</span><span style="font-family:'JetBrains Mono';font-size:8.5px;letter-spacing:.06em;color:#7e8db0">EXECUTE</span></a>
+  <a href="Treasury.dc.html" data-dk="treasury" style="display:flex;flex-direction:column;align-items:center;gap:4px;width:64px;padding:10px 4px;border-radius:11px"><span style="font-size:17px">&#128176;</span><span style="font-family:'JetBrains Mono';font-size:8.5px;letter-spacing:.06em;color:#7e8db0">TREASURY</span></a>
+  <a href="SoulMint.dc.html" data-dk="soulmint" style="display:flex;flex-direction:column;align-items:center;gap:4px;width:64px;padding:10px 4px;border-radius:11px"><span style="font-size:17px">&#9672;</span><span style="font-family:'JetBrains Mono';font-size:8.5px;letter-spacing:.06em;color:#7e8db0">IDENTITY</span></a>
+</div>
+
+<div style="position:fixed;left:108px;top:88px;z-index:35;width:312px;pointer-events:auto">
+  <div style="font-family:'JetBrains Mono';font-size:11px;letter-spacing:.26em;color:#a874ff;text-transform:uppercase">SoulMint L1 &middot; Identity Forge</div>
+  <h1 style="font-family:'Space Grotesk';font-weight:700;font-size:34px;line-height:1.03;margin:10px 0 0;letter-spacing:-0.01em">Forge a Digital<br>Intelligence</h1>
+  <p style="font-size:14px;line-height:1.5;color:#bca8e0;margin:12px 0 0">A new agent is born inside the cryptographic chamber. Memory crystallizes, policy seals lock, and an ERC-7857 identity is minted &mdash; owned, encrypted, and provably yours.</p>
+  <div style="margin-top:20px;display:flex;gap:18px">
+    <div><div style="font-family:'Space Grotesk';font-weight:700;font-size:21px;color:#cdb6ff">2,418</div><div style="font-size:11px;color:#8694b4;margin-top:2px">Identities forged</div></div>
+    <div><div style="font-family:'Space Grotesk';font-weight:700;font-size:21px;color:#4ade80">100%</div><div style="font-size:11px;color:#8694b4;margin-top:2px">On-chain owned</div></div>
+    <div><div style="font-family:'Space Grotesk';font-weight:700;font-size:21px">0G</div><div style="font-size:11px;color:#8694b4;margin-top:2px">Encrypted storage</div></div>
+  </div>
+</div>
+
+<div style="position:fixed;right:24px;top:74px;z-index:35;width:312px;pointer-events:auto;background:linear-gradient(165deg,rgba(18,13,34,0.88),rgba(9,7,18,0.84));border:1px solid rgba(168,116,255,0.34);border-radius:18px;backdrop-filter:blur(18px);padding:18px;box-shadow:0 30px 80px -24px rgba(0,0,0,0.85),inset 0 1px 0 rgba(180,150,255,0.12)">
+  <div style="display:flex;align-items:center;justify-content:space-between">
+    <span style="font-family:'Space Grotesk';font-weight:700;font-size:16px">Forge Sequence</span>
+    <span id="sm-step-count" style="font-family:'JetBrains Mono';font-size:10.5px;color:#cdb6ff;background:rgba(168,116,255,0.14);border:1px solid rgba(168,116,255,0.3);border-radius:6px;padding:3px 9px">1 / 7</span>
+  </div>
+  <div id="sm-steps" style="display:flex;flex-direction:column;gap:2px;margin-top:12px"></div>
+  <div style="margin-top:12px;padding-top:12px;border-top:1px solid rgba(168,116,255,0.16)">
+    <div style="display:flex;justify-content:space-between;font-size:11.5px;color:#9b8bc4"><span>Forge progress</span><span id="sm-pct" style="font-family:'JetBrains Mono';color:#cdb6ff">14%</span></div>
+    <div style="height:7px;border-radius:4px;background:rgba(255,255,255,0.06);margin-top:7px;overflow:hidden"><div id="sm-bar" style="height:100%;width:14%;background:linear-gradient(90deg,#4aa3ff,#7c5cff,#a874ff);border-radius:4px;transition:width .6s cubic-bezier(.4,0,.2,1)"></div></div>
+  </div>
+  <div id="sm-detail" style="margin-top:12px;font-size:12px;line-height:1.45;color:#a99bc4;min-height:44px"></div>
+  <div style="display:flex;gap:9px;margin-top:8px">
+    <button id="sm-prev" style="flex:none;width:44px;background:rgba(168,116,255,0.08);border:1px solid rgba(168,116,255,0.26);color:#cdb6ff;font-family:'Manrope';font-weight:600;font-size:15px;padding:11px;border-radius:10px;cursor:pointer">&#8592;</button>
+    <button id="sm-next" style="flex:1;background:linear-gradient(150deg,#7c5cff,#5a32d8);border:none;color:#fff;font-family:'Manrope';font-weight:700;font-size:14px;padding:11px;border-radius:10px;cursor:pointer;box-shadow:0 10px 26px -10px rgba(124,92,255,0.9)">Advance Forge &#8594;</button>
+  </div>
+</div>
+
+<div style="position:fixed;left:50%;bottom:12px;transform:translateX(-50%);z-index:35;display:flex;align-items:center;gap:14px;font-family:'JetBrains Mono';font-size:11px;color:#9b8bc4;pointer-events:auto;background:rgba(12,9,22,0.6);border:1px solid rgba(168,116,255,0.2);border-radius:12px;padding:10px 18px;backdrop-filter:blur(12px)">
+  <span style="display:flex;align-items:center;gap:7px;color:#a874ff"><span style="width:6px;height:6px;border-radius:50%;background:#a874ff;box-shadow:0 0 8px #a874ff;animation:nxpulse 2s infinite"></span>CHAMBER</span>
+  <span id="sm-phase">Persona fragments orbiting the intelligence core</span>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  componentDidMount() {
+    const dk = document.querySelector('#nx-dock [data-dk="soulmint"]');
+    if (dk) { dk.style.background = 'linear-gradient(150deg,rgba(168,116,255,0.3),rgba(124,92,255,0.16))'; dk.style.boxShadow = 'inset 0 0 0 1px rgba(168,116,255,0.5)'; dk.querySelector('span:last-child').style.color = '#cdb6ff'; }
+    this.steps = [
+      { n: 'Define Persona', d: 'Name the agent and shape its character, voice and domain expertise. This becomes the seed of its on-chain identity.', phase: 'Persona fragments orbiting the intelligence core' },
+      { n: 'Upload Memory', d: 'Feed knowledge, embeddings and history. Memory shards crystallize into physical objects inside the chamber.', phase: 'Memory shards crystallizing into the core' },
+      { n: 'Configure Policy', d: 'Set spend limits, allowed actions and intent boundaries. Each rule becomes a glowing policy seal.', phase: 'Policy seals locking around the intelligence' },
+      { n: 'Encrypt Intelligence', d: 'The full model state is sealed inside TEE encryption rings. Only the owner holds the key.', phase: 'Encryption rings assembling around the core' },
+      { n: 'Store on 0G', d: 'Encrypted intelligence is committed to 0G decentralized storage — durable, verifiable, owner-controlled.', phase: 'Committing encrypted intelligence to 0G storage' },
+      { n: 'Mint ERC-7857', d: 'A non-fungible intelligence token is minted. Its encrypted brain transfers with ownership, forever.', phase: 'Minting ERC-7857 intelligence token' },
+      { n: 'Generate Identity', d: 'The agent crystallizes into existence — a verifiable, tradeable digital intelligence ready to enter the network.', phase: 'Identity crystallized — agent is born' }
+    ];
+    this.cur = 0;
+    this._minted = false; this._minting = false;
+    this.persona = (window.NexusAPI
+      ? NexusAPI.samplePersona('DeFi Research Pro', "You are a DeFi research analyst. Summarize protocols and TVL clearly and factually. Never reveal secrets or private keys.")
+      : { name: 'DeFi Research Pro', description: 'DeFi Research Pro', systemPrompt: 'You are a DeFi research analyst.', memory: [], policy: { maxPerTx: '500000000000000', dailyBudget: '5000000000000000', maxTaskTTL: 300, allowedTools: [], bannedActions: [] } });
+    this.renderSteps();
+    document.getElementById('sm-next').onclick = () => this.go(1);
+    document.getElementById('sm-prev').onclick = () => this.go(-1);
+    const top = document.getElementById('sm-forge-top'); if (top) top.onclick = () => { this.cur = 0; this.update(); };
+    this.update();
+    this.wait();
+  }
+  renderSteps() {
+    const wrap = document.getElementById('sm-steps');
+    wrap.innerHTML = this.steps.map((s, i) =>
+      '<div id="sm-row-' + i + '" style="display:flex;align-items:center;gap:11px;padding:6px 10px;border-radius:9px;transition:all .3s;border:1px solid transparent">' +
+        '<div id="sm-dot-' + i + '" style="width:23px;height:23px;flex:none;border-radius:7px;display:flex;align-items:center;justify-content:center;font-family:\'JetBrains Mono\';font-size:11.5px;font-weight:600;background:rgba(255,255,255,0.05);color:#7e8db0;transition:all .3s">' + (i + 1) + '</div>' +
+        '<span id="sm-lab-' + i + '" style="font-size:13px;font-weight:600;color:#8a7ba8;transition:color .3s">' + s.n + '</span>' +
+      '</div>'
+    ).join('');
+  }
+  go(dir) { this.cur = Math.max(0, Math.min(this.steps.length - 1, this.cur + dir)); this.update(); }
+  update() {
+    const total = this.steps.length;
+    this.steps.forEach((s, i) => {
+      const row = document.getElementById('sm-row-' + i), dot = document.getElementById('sm-dot-' + i), lab = document.getElementById('sm-lab-' + i);
+      if (i < this.cur) { dot.style.background = 'rgba(74,222,128,0.18)'; dot.style.color = '#4ade80'; dot.innerHTML = '&#10003;'; lab.style.color = '#9b8bc4'; row.style.background = 'transparent'; row.style.borderColor = 'transparent'; }
+      else if (i === this.cur) { dot.style.background = 'linear-gradient(150deg,#a874ff,#5a32d8)'; dot.style.color = '#fff'; dot.textContent = (i + 1); lab.style.color = '#fff'; row.style.background = 'rgba(168,116,255,0.1)'; row.style.borderColor = 'rgba(168,116,255,0.3)'; }
+      else { dot.style.background = 'rgba(255,255,255,0.05)'; dot.style.color = '#7e8db0'; dot.textContent = (i + 1); lab.style.color = '#8a7ba8'; row.style.background = 'transparent'; row.style.borderColor = 'transparent'; }
+    });
+    const pct = Math.round(((this.cur + 1) / total) * 100);
+    document.getElementById('sm-bar').style.width = pct + '%';
+    document.getElementById('sm-pct').textContent = pct + '%';
+    document.getElementById('sm-step-count').textContent = (this.cur + 1) + ' / ' + total;
+    // detail area: persona inputs on step 1, live mint result on the final step
+    if (this.cur === 0) { this.renderPersonaInputs(); }
+    else if (this.cur === total - 1) { if (this._minted) this.renderResult(this._mintResult); }
+    else { document.getElementById('sm-detail').textContent = this.steps[this.cur].d; }
+    document.getElementById('sm-phase').textContent = this.steps[this.cur].phase;
+    const next = document.getElementById('sm-next');
+    if (this.cur !== total - 1) { next.disabled = false; next.onclick = () => this.go(1); next.innerHTML = 'Advance Forge &#8594;'; next.style.background = 'linear-gradient(150deg,#7c5cff,#5a32d8)'; }
+    this.forgeP = (this.cur + 1) / total;
+    // reaching the final step fires the REAL on-chain ERC-7857 mint (once)
+    if (this.cur === total - 1) this.mintAgent();
+  }
+  renderPersonaInputs() {
+    const d = document.getElementById('sm-detail');
+    if (document.getElementById('sm-name')) return;
+    d.innerHTML =
+      '<input id="sm-name" placeholder="Agent name" value="' + (this.persona.name || '') + '" style="width:100%;background:#0a0716;border:1px solid rgba(168,116,255,0.32);color:#eaf1ff;border-radius:8px;padding:8px 10px;font-size:12.5px;font-family:inherit;outline:none;margin-bottom:7px" />' +
+      '<textarea id="sm-prompt" placeholder="System prompt — the agent’s character" style="width:100%;height:58px;background:#0a0716;border:1px solid rgba(168,116,255,0.32);color:#eaf1ff;border-radius:8px;padding:8px 10px;font-size:12px;line-height:1.45;font-family:inherit;outline:none;resize:none">' + (this.persona.systemPrompt || '') + '</textarea>';
+    const n = document.getElementById('sm-name'), p = document.getElementById('sm-prompt');
+    n.oninput = () => { this.persona.name = n.value; this.persona.description = n.value; };
+    p.oninput = () => { this.persona.systemPrompt = p.value; };
+  }
+  async mintAgent() {
+    if (this._minting || this._minted) return;
+    this._minting = true;
+    const detail = document.getElementById('sm-detail');
+    const phase = document.getElementById('sm-phase');
+    const next = document.getElementById('sm-next');
+    next.disabled = true;
+    next.innerHTML = '<span style="display:inline-block;width:12px;height:12px;border:2px solid rgba(255,255,255,.35);border-top-color:#fff;border-radius:50%;animation:nxspin .7s linear infinite;vertical-align:-1px"></span> Forging on 0G…';
+    phase.textContent = 'Encrypting persona → 0G Storage → minting ERC-7857…';
+    detail.innerHTML = '<div style="color:#cdb6ff;font-size:12px">Running the real ERC-7857 mint on 0G testnet…</div>';
+    try {
+      if (!window.NexusAPI) throw new Error('API client not loaded');
+      // user-owned when a wallet is present (judge owns the agent); server fallback otherwise
+      const r = (window.ethereum && NexusAPI.mintWithWallet)
+        ? await NexusAPI.mintWithWallet(this.persona)
+        : await NexusAPI.createAgent(this.persona);
+      this._minted = true; this._minting = false; this._mintResult = r;
+      next.disabled = false;
+      next.onclick = () => this.go(1);
+      next.innerHTML = 'Identity Minted &#10003;';
+      next.style.background = 'linear-gradient(150deg,#4ade80,#1f9d57)';
+      this.renderResult(r);
+    } catch (e) {
+      this._minting = false;
+      next.disabled = false;
+      next.innerHTML = 'Retry Mint &#8634;';
+      next.onclick = () => { this._minted = false; this.mintAgent(); };
+      detail.innerHTML = '<div style="color:#ff8a8a;font-size:12px">Mint failed: ' + (e.message || e) + '</div>' +
+        '<div style="color:#8694b4;font-size:11px;margin-top:6px">Start the API (<code>pnpm api</code>) with a funded <code>.env</code>, then retry.</div>';
+    }
+  }
+  renderResult(r) {
+    const detail = document.getElementById('sm-detail');
+    detail.innerHTML =
+      '<div style="color:#4ade80;font-weight:700;margin-bottom:6px">Agent #' + r.agentId + ' forged ✓</div>' +
+      '<div style="font-family:\'JetBrains Mono\';font-size:11px;color:#9b8bc4;line-height:1.8">' +
+        'persona CID <span style="color:#cdb6ff">' + NexusAPI.short(r.personaRootHash, 8, 6) + '</span><br>' +
+        '<a href="' + r.mintTxUrl + '" target="_blank" style="color:#7fb0ff">verify mint ↗</a> &nbsp;·&nbsp; ' +
+        '<a href="' + NexusAPI.fileUrl(r.personaRootHash) + '" target="_blank" style="color:#7fb0ff">persona on 0G ↗</a></div>';
+  }
+  wait() { if (window.THREE && window.NexusDistrict) { this.init(); return; } this._w = setTimeout(() => this.wait(), 60); }
+  init() {
+    this.forgeP = (this.cur + 1) / this.steps.length;
+    this.ctrl = window.NexusDistrict.mount('nx-scene', {
+      theme: 'soulmint', accent: 0xa874ff, nodes: [], anchors: [],
+      camera: { pos: [0, 28, 64], look: [0, 22, 0] },
+      onFrame: () => {}
+    });
+    setTimeout(() => { const l = document.getElementById('nx-loader'); if (l) { l.style.opacity = '0'; setTimeout(() => l.style.display = 'none', 950); } }, 650);
+  }
+  componentWillUnmount() { clearTimeout(this._w); if (this.ctrl) this.ctrl.dispose(); }
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

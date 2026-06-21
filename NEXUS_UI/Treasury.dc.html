@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;height:100%}
+  body{background:#04060e;color:#eaf1ff;font-family:'Manrope',system-ui,sans-serif;overflow:hidden;-webkit-font-smoothing:antialiased}
+  canvas{display:block}
+  a{text-decoration:none;color:inherit}
+  @keyframes nxpulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.35;transform:scale(.82)}}
+  @keyframes nxspin{to{transform:rotate(360deg)}}
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="./nexus-district.js"></script>
+<script src="./nexus-api.js"></script>
+</helmet>
+
+<canvas id="nx-scene" style="position:fixed;inset:0;width:100vw;height:100vh;z-index:0;"></canvas>
+<div style="position:fixed;inset:0;z-index:1;pointer-events:none;background:radial-gradient(120% 80% at 50% -5%,rgba(220,160,50,0.12),transparent 55%),radial-gradient(140% 120% at 50% 120%,rgba(0,0,0,0.74),transparent 60%);box-shadow:inset 0 0 240px 50px rgba(0,0,0,0.85)"></div>
+
+<div id="nx-loader" style="position:fixed;inset:0;z-index:80;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:22px;background:#04060e;transition:opacity .9s ease;">
+  <div style="width:46px;height:46px;border-radius:50%;border:2px solid rgba(245,183,64,0.2);border-top-color:#f5b740;animation:nxspin 1s linear infinite"></div>
+  <div style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.32em;color:#8a7138;text-transform:uppercase">Entering Treasury Vault</div>
+</div>
+
+<nav style="position:fixed;top:0;left:0;right:0;z-index:40;display:flex;align-items:center;justify-content:space-between;padding:20px 34px;pointer-events:none;">
+  <a href="NEXUS%20World.dc.html" style="display:flex;align-items:center;gap:12px;pointer-events:auto">
+    <div style="width:32px;height:32px;border-radius:9px;background:linear-gradient(150deg,#3b82f6,#1f4fd6);display:flex;align-items:center;justify-content:center;box-shadow:0 6px 22px -4px rgba(59,130,246,0.7),inset 0 1px 0 rgba(255,255,255,0.3)"><div style="width:13px;height:13px;border:2.5px solid #fff;border-radius:4px;transform:rotate(45deg)"></div></div>
+    <span style="font-family:'Space Grotesk';font-weight:700;font-size:20px;letter-spacing:.16em">NEXUS</span>
+    <span style="font-family:'JetBrains Mono';font-size:11px;color:#6a7da0;letter-spacing:.12em;margin-left:6px;padding-left:14px;border-left:1px solid rgba(120,150,210,0.25)">TREASURY&nbsp;VAULT</span>
+  </a>
+  <div style="display:flex;gap:12px;align-items:center;pointer-events:auto">
+    <div style="display:flex;align-items:center;gap:8px;background:rgba(30,24,8,0.5);border:1px solid rgba(245,183,64,0.3);border-radius:9px;padding:9px 14px;backdrop-filter:blur(10px)"><span style="width:7px;height:7px;border-radius:50%;background:#f5b740;box-shadow:0 0 8px #f5b740;animation:nxpulse 2s infinite"></span><span style="font-family:'JetBrains Mono';font-size:11.5px;color:#f0cd8a;letter-spacing:.06em">VAULT&nbsp;SECURED</span></div>
+    <button style="background:linear-gradient(150deg,#f5b740,#d8901f);border:none;color:#1a1206;font-family:'Manrope';font-weight:700;font-size:13.5px;padding:10px 20px;border-radius:9px;cursor:pointer;box-shadow:0 8px 26px -8px rgba(245,183,64,0.8)">Enter Vault</button>
+  </div>
+</nav>
+
+<div id="nx-dock" style="position:fixed;left:22px;top:50%;transform:translateY(-50%);z-index:45;display:flex;flex-direction:column;gap:6px;padding:12px 10px;background:linear-gradient(180deg,rgba(11,18,34,0.7),rgba(7,12,24,0.66));border:1px solid rgba(74,130,230,0.2);border-radius:16px;backdrop-filter:blur(16px);pointer-events:auto;box-shadow:0 24px 60px -20px rgba(0,0,0,0.7)">
+  <a href="NEXUS%20World.dc.html" data-dk="world" style="display:flex;flex-direction:column;align-items:center;gap:4px;width:64px;padding:10px 4px;border-radius:11px"><span style="font-size:17px">&#9678;</span><span style="font-family:'JetBrains Mono';font-size:8.5px;letter-spacing:.06em;color:#7e8db0">WORLD</span></a>
+  <a href="Marketplace.dc.html" data-dk="marketplace" style="display:flex;flex-direction:column;align-items:center;gap:4px;width:64px;padding:10px 4px;border-radius:11px"><span style="font-size:17px">&#128101;</span><span style="font-family:'JetBrains Mono';font-size:8.5px;letter-spacing:.06em;color:#7e8db0">AGENTS</span></a>
+  <a href="Network.dc.html" data-dk="network" style="display:flex;flex-direction:column;align-items:center;gap:4px;width:64px;padding:10px 4px;border-radius:11px"><span style="font-size:17px">&#127760;</span><span style="font-family:'JetBrains Mono';font-size:8.5px;letter-spacing:.06em;color:#7e8db0">NETWORK</span></a>
+  <a href="Audit.dc.html" data-dk="audit" style="display:flex;flex-direction:column;align-items:center;gap:4px;width:64px;padding:10px 4px;border-radius:11px"><span style="font-size:17px">&#128737;</span><span style="font-family:'JetBrains Mono';font-size:8.5px;letter-spacing:.06em;color:#7e8db0">AUDIT</span></a>
+  <a href="Execution.dc.html" data-dk="execution" style="display:flex;flex-direction:column;align-items:center;gap:4px;width:64px;padding:10px 4px;border-radius:11px"><span style="font-size:17px">&#9889;</span><span style="font-family:'JetBrains Mono';font-size:8.5px;letter-spacing:.06em;color:#7e8db0">EXECUTE</span></a>
+  <a href="Treasury.dc.html" data-dk="treasury" style="display:flex;flex-direction:column;align-items:center;gap:4px;width:64px;padding:10px 4px;border-radius:11px"><span style="font-size:17px">&#128176;</span><span style="font-family:'JetBrains Mono';font-size:8.5px;letter-spacing:.06em;color:#7e8db0">TREASURY</span></a>
+  <a href="SoulMint.dc.html" data-dk="soulmint" style="display:flex;flex-direction:column;align-items:center;gap:4px;width:64px;padding:10px 4px;border-radius:11px"><span style="font-size:17px">&#9672;</span><span style="font-family:'JetBrains Mono';font-size:8.5px;letter-spacing:.06em;color:#7e8db0">IDENTITY</span></a>
+</div>
+
+<div style="position:fixed;left:108px;top:90px;z-index:35;width:320px;pointer-events:auto">
+  <div style="font-family:'JetBrains Mono';font-size:11px;letter-spacing:.26em;color:#f5b740;text-transform:uppercase">Capital &middot; Yield &middot; Risk</div>
+  <h1 style="font-family:'Space Grotesk';font-weight:700;font-size:36px;line-height:1.04;margin:10px 0 0;letter-spacing:-0.01em">Treasury Vault</h1>
+  <p style="font-size:14px;line-height:1.5;color:#aab7d4;margin:12px 0 0">Capital pools held as glowing containers. Yield strategies run as active systems; risk is laid out in spatial layers you can see.</p>
+  <div style="display:flex;gap:22px;margin-top:22px;padding-top:18px;border-top:1px solid rgba(245,183,64,0.2)">
+    <div><div style="font-family:'Space Grotesk';font-weight:700;font-size:23px;color:#f5b740">$98.7M</div><div style="font-size:11px;color:#8694b4;margin-top:2px">Total value locked</div></div>
+    <div><div style="font-family:'Space Grotesk';font-weight:700;font-size:23px;color:#4ade80">14.2%</div><div style="font-size:11px;color:#8694b4;margin-top:2px">Blended APY</div></div>
+    <div><div style="font-family:'Space Grotesk';font-weight:700;font-size:23px">Low</div><div style="font-size:11px;color:#8694b4;margin-top:2px">Risk profile</div></div>
+  </div>
+</div>
+
+<div id="nx-anchors" style="position:fixed;inset:0;z-index:20;pointer-events:none"></div>
+
+<div style="position:fixed;right:24px;top:84px;z-index:35;width:288px;pointer-events:auto;background:linear-gradient(165deg,rgba(26,20,8,0.86),rgba(14,11,5,0.82));border:1px solid rgba(245,183,64,0.3);border-radius:18px;backdrop-filter:blur(18px);padding:20px;box-shadow:0 30px 80px -24px rgba(0,0,0,0.85),inset 0 1px 0 rgba(245,210,140,0.1)">
+  <div style="display:flex;align-items:center;justify-content:space-between"><span style="font-family:'Space Grotesk';font-weight:700;font-size:15px">Allocation</span><span style="font-family:'JetBrains Mono';font-size:9.5px;color:#f5b740;display:flex;align-items:center;gap:5px"><span style="width:5px;height:5px;border-radius:50%;background:#f5b740;box-shadow:0 0 6px #f5b740;animation:nxpulse 2s infinite"></span>OPTIMIZING</span></div>
+  <div style="display:flex;flex-direction:column;gap:11px;margin-top:16px">
+    <div><div style="display:flex;justify-content:space-between;font-size:12px"><span style="color:#e7d6ad">DeFi Yield</span><span style="color:#8694b4">42% &middot; <span style="color:#4ade80">16.8% APY</span></span></div><div style="height:6px;border-radius:3px;background:rgba(255,255,255,0.06);margin-top:5px"><div style="height:100%;width:42%;background:linear-gradient(90deg,#f5b740,#e08a2a);border-radius:3px"></div></div></div>
+    <div><div style="display:flex;justify-content:space-between;font-size:12px"><span style="color:#e7d6ad">Staking</span><span style="color:#8694b4">28% &middot; <span style="color:#4ade80">9.4% APY</span></span></div><div style="height:6px;border-radius:3px;background:rgba(255,255,255,0.06);margin-top:5px"><div style="height:100%;width:28%;background:linear-gradient(90deg,#a874ff,#7c5cff);border-radius:3px"></div></div></div>
+    <div><div style="display:flex;justify-content:space-between;font-size:12px"><span style="color:#e7d6ad">Liquidity Pools</span><span style="color:#8694b4">19% &middot; <span style="color:#4ade80">21.2% APY</span></span></div><div style="height:6px;border-radius:3px;background:rgba(255,255,255,0.06);margin-top:5px"><div style="height:100%;width:19%;background:linear-gradient(90deg,#34d4c0,#4aa3ff);border-radius:3px"></div></div></div>
+    <div><div style="display:flex;justify-content:space-between;font-size:12px"><span style="color:#e7d6ad">Stable Reserve</span><span style="color:#8694b4">11% &middot; <span style="color:#9fb0d0">4.1% APY</span></span></div><div style="height:6px;border-radius:3px;background:rgba(255,255,255,0.06);margin-top:5px"><div style="height:100%;width:11%;background:linear-gradient(90deg,#4aa3ff,#6f9bff);border-radius:3px"></div></div></div>
+  </div>
+  <div style="font-family:'JetBrains Mono';font-size:9.5px;letter-spacing:.18em;color:#8a7138;text-transform:uppercase;margin:18px 0 9px">Risk layers</div>
+  <div style="display:flex;gap:6px">
+    <div style="flex:1;text-align:center;background:rgba(74,222,128,0.1);border:1px solid rgba(74,222,128,0.3);border-radius:9px;padding:9px 4px"><div style="font-family:'Space Grotesk';font-weight:700;font-size:14px;color:#4ade80">71%</div><div style="font-size:9.5px;color:#8694b4">Low</div></div>
+    <div style="flex:1;text-align:center;background:rgba(245,183,64,0.1);border:1px solid rgba(245,183,64,0.3);border-radius:9px;padding:9px 4px"><div style="font-family:'Space Grotesk';font-weight:700;font-size:14px;color:#f5b740">23%</div><div style="font-size:9.5px;color:#8694b4">Medium</div></div>
+    <div style="flex:1;text-align:center;background:rgba(255,122,122,0.1);border:1px solid rgba(255,122,122,0.3);border-radius:9px;padding:9px 4px"><div style="font-family:'Space Grotesk';font-weight:700;font-size:14px;color:#ff7a7a">6%</div><div style="font-size:9.5px;color:#8694b4">High</div></div>
+  </div>
+  <button style="width:100%;margin-top:16px;background:rgba(245,183,64,0.12);border:1px solid rgba(245,183,64,0.34);color:#f0cd8a;font-family:'Manrope';font-weight:600;font-size:13px;padding:11px;border-radius:10px;cursor:pointer">Rebalance Strategy &#8594;</button>
+</div>
+
+<div style="position:fixed;left:108px;bottom:24px;z-index:35;display:flex;align-items:center;gap:16px;font-family:'JetBrains Mono';font-size:11px;color:#8694b4;pointer-events:auto;background:rgba(9,15,28,0.6);border:1px solid rgba(245,183,64,0.18);border-radius:12px;padding:10px 16px;backdrop-filter:blur(12px)">
+  <span style="display:flex;align-items:center;gap:7px;color:#f5b740"><span style="width:6px;height:6px;border-radius:50%;background:#f5b740;box-shadow:0 0 8px #f5b740;animation:nxpulse 2s infinite"></span>ACCRUING</span>
+  <span id="tr-feed">Yield harvested &middot; +$2,418 &middot; DeFi Yield pool</span>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  componentDidMount() {
+    const dk = document.querySelector('#nx-dock [data-dk="treasury"]');
+    if (dk) { dk.style.background = 'linear-gradient(150deg,rgba(245,183,64,0.3),rgba(216,144,31,0.16))'; dk.style.boxShadow = 'inset 0 0 0 1px rgba(245,183,64,0.5)'; dk.querySelector('span:last-child').style.color = '#f0cd8a'; }
+    this.pools = [
+      { id: 'c1', label: 'DeFi Yield', sub: '$41.4M · 16.8% APY', tone: '#f5b740', pos: [-16, 30, 12] },
+      { id: 'c2', label: 'Staking', sub: '$27.6M · 9.4% APY', tone: '#a874ff', pos: [18, 34, -8] },
+      { id: 'c3', label: 'Liquidity Pools', sub: '$18.8M · 21.2% APY', tone: '#34d4c0', pos: [20, 16, 12] },
+      { id: 'c4', label: 'Stable Reserve', sub: '$10.9M · 4.1% APY', tone: '#4aa3ff', pos: [-14, 16, 16] }
+    ];
+    this.buildAnchors();
+    (async()=>{try{if(!window.NexusAPI)return;const n=await NexusAPI.network();const ags=await NexusAPI.listAgents();const clones=ags.reduce((s,a)=>s+(a.cloneCount||0),0);this._feeds=[n.totalAgents+' agents under management',clones+' clones minted (royalty to creators)',n.totalReceipts+' proven tasks on 0G','Clone royalty flowing to creators','All value settled on 0G Chain'];}catch(e){}})();
+    const feeds = ['Yield harvested · +$2,418 · DeFi Yield pool', 'Strategy rebalanced · +0.6% APY', 'Stable reserve topped up · $1.2M', 'LP fees collected · +$842', 'Risk check passed · all pools green'];
+    let fi = 0; this._tick = setInterval(() => { var F = this._feeds || feeds; fi = (fi + 1) % F.length; const el = document.getElementById('tr-feed'); if (el) el.textContent = F[fi]; }, 1700);
+    this.wait();
+  }
+  buildAnchors() {
+    const layer = document.getElementById('nx-anchors');
+    this.pools.forEach(p => {
+      const el = document.createElement('div'); el.id = 'an-' + p.id;
+      el.style.cssText = 'position:absolute;left:0;top:0;opacity:0;pointer-events:auto;transition:opacity .5s;border:1px solid rgba(245,183,64,0.26);border-left:2px solid ' + p.tone + ';background:linear-gradient(160deg,rgba(22,16,6,0.92),rgba(12,9,4,0.88));backdrop-filter:blur(12px);border-radius:11px;padding:9px 12px;box-shadow:0 16px 40px -16px rgba(0,0,0,0.8);white-space:nowrap';
+      el.innerHTML = '<div style="display:flex;align-items:center;gap:8px"><span style="width:7px;height:7px;border-radius:50%;background:' + p.tone + ';box-shadow:0 0 8px ' + p.tone + '"></span><span style="font-family:\'Space Grotesk\';font-weight:600;font-size:12.5px">' + p.label + '</span></div><div style="font-family:\'JetBrains Mono\';font-size:10px;color:#cbb487;margin-top:5px">' + p.sub + '</div>';
+      layer.appendChild(el);
+    });
+  }
+  wait() { if (window.THREE && window.NexusDistrict) { this.init(); return; } this._w = setTimeout(() => this.wait(), 60); }
+  init() {
+    const anchors = this.pools.map(p => ({ el: document.getElementById('an-' + p.id), pos: p.pos }));
+    this.ctrl = window.NexusDistrict.mount('nx-scene', {
+      theme: 'treasury', accent: 0xf5b740, nodes: [], anchors,
+      camera: { pos: [5, 26, 60], look: [0, 14, 0] }
+    });
+    setTimeout(() => {
+      document.querySelectorAll('#nx-anchors > div').forEach(el => el.style.opacity = '1');
+      const l = document.getElementById('nx-loader'); if (l) { l.style.opacity = '0'; setTimeout(() => l.style.display = 'none', 950); }
+    }, 650);
+  }
+  componentWillUnmount() { clearTimeout(this._w); clearInterval(this._tick); if (this.ctrl) this.ctrl.dispose(); }
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

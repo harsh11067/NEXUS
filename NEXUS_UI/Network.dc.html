@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;height:100%}
+  body{background:#04060e;color:#eaf1ff;font-family:'Manrope',system-ui,sans-serif;overflow:hidden;-webkit-font-smoothing:antialiased}
+  canvas{display:block}
+  a{text-decoration:none;color:inherit}
+  @keyframes nxpulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.35;transform:scale(.82)}}
+  @keyframes nxspin{to{transform:rotate(360deg)}}
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="./nexus-district.js"></script>
+<script src="./nexus-api.js"></script>
+</helmet>
+
+<canvas id="nx-scene" style="position:fixed;inset:0;width:100vw;height:100vh;z-index:0;"></canvas>
+<div style="position:fixed;inset:0;z-index:1;pointer-events:none;background:radial-gradient(120% 80% at 50% -10%,rgba(40,110,210,0.13),transparent 55%),radial-gradient(140% 120% at 50% 120%,rgba(0,0,0,0.72),transparent 60%);box-shadow:inset 0 0 240px 50px rgba(0,0,0,0.85)"></div>
+
+<div id="nx-loader" style="position:fixed;inset:0;z-index:80;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:22px;background:#04060e;transition:opacity .9s ease;">
+  <div style="width:46px;height:46px;border-radius:50%;border:2px solid rgba(74,163,255,0.2);border-top-color:#4aa3ff;animation:nxspin 1s linear infinite"></div>
+  <div style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.32em;color:#5d76a8;text-transform:uppercase">Entering Network Operations</div>
+</div>
+
+<nav style="position:fixed;top:0;left:0;right:0;z-index:40;display:flex;align-items:center;justify-content:space-between;padding:20px 34px;pointer-events:none;">
+  <a href="NEXUS%20World.dc.html" style="display:flex;align-items:center;gap:12px;pointer-events:auto">
+    <div style="width:32px;height:32px;border-radius:9px;background:linear-gradient(150deg,#3b82f6,#1f4fd6);display:flex;align-items:center;justify-content:center;box-shadow:0 6px 22px -4px rgba(59,130,246,0.7),inset 0 1px 0 rgba(255,255,255,0.3)"><div style="width:13px;height:13px;border:2.5px solid #fff;border-radius:4px;transform:rotate(45deg)"></div></div>
+    <span style="font-family:'Space Grotesk';font-weight:700;font-size:20px;letter-spacing:.16em">NEXUS</span>
+    <span style="font-family:'JetBrains Mono';font-size:11px;color:#6a7da0;letter-spacing:.12em;margin-left:6px;padding-left:14px;border-left:1px solid rgba(120,150,210,0.25)">NETWORK&nbsp;OPS&nbsp;CENTER</span>
+  </a>
+  <div style="display:flex;gap:12px;align-items:center;pointer-events:auto">
+    <div style="display:flex;align-items:center;gap:8px;background:rgba(12,30,24,0.5);border:1px solid rgba(74,222,128,0.3);border-radius:9px;padding:9px 14px;backdrop-filter:blur(10px)"><span style="width:7px;height:7px;border-radius:50%;background:#4ade80;box-shadow:0 0 8px #4ade80;animation:nxpulse 2s infinite"></span><span style="font-family:'JetBrains Mono';font-size:11.5px;color:#7fe6a3;letter-spacing:.06em">LIVE NETWORK</span></div>
+    <button style="background:linear-gradient(150deg,#3b82f6,#2454d8);border:none;color:#fff;font-family:'Manrope';font-weight:700;font-size:13.5px;padding:10px 20px;border-radius:9px;cursor:pointer;box-shadow:0 8px 26px -8px rgba(59,130,246,0.8)">Open Command Center</button>
+  </div>
+</nav>
+
+<div id="nx-dock" style="position:fixed;left:22px;top:50%;transform:translateY(-50%);z-index:45;display:flex;flex-direction:column;gap:6px;padding:12px 10px;background:linear-gradient(180deg,rgba(11,18,34,0.7),rgba(7,12,24,0.66));border:1px solid rgba(74,130,230,0.2);border-radius:16px;backdrop-filter:blur(16px);pointer-events:auto;box-shadow:0 24px 60px -20px rgba(0,0,0,0.7)">
+  <a href="NEXUS%20World.dc.html" data-dk="world" style="display:flex;flex-direction:column;align-items:center;gap:4px;width:64px;padding:10px 4px;border-radius:11px"><span style="font-size:17px">&#9678;</span><span style="font-family:'JetBrains Mono';font-size:8.5px;letter-spacing:.06em;color:#7e8db0">WORLD</span></a>
+  <a href="Marketplace.dc.html" data-dk="marketplace" style="display:flex;flex-direction:column;align-items:center;gap:4px;width:64px;padding:10px 4px;border-radius:11px"><span style="font-size:17px">&#128101;</span><span style="font-family:'JetBrains Mono';font-size:8.5px;letter-spacing:.06em;color:#7e8db0">AGENTS</span></a>
+  <a href="Network.dc.html" data-dk="network" style="display:flex;flex-direction:column;align-items:center;gap:4px;width:64px;padding:10px 4px;border-radius:11px"><span style="font-size:17px">&#127760;</span><span style="font-family:'JetBrains Mono';font-size:8.5px;letter-spacing:.06em;color:#7e8db0">NETWORK</span></a>
+  <a href="Audit.dc.html" data-dk="audit" style="display:flex;flex-direction:column;align-items:center;gap:4px;width:64px;padding:10px 4px;border-radius:11px"><span style="font-size:17px">&#128737;</span><span style="font-family:'JetBrains Mono';font-size:8.5px;letter-spacing:.06em;color:#7e8db0">AUDIT</span></a>
+  <a href="Execution.dc.html" data-dk="execution" style="display:flex;flex-direction:column;align-items:center;gap:4px;width:64px;padding:10px 4px;border-radius:11px"><span style="font-size:17px">&#9889;</span><span style="font-family:'JetBrains Mono';font-size:8.5px;letter-spacing:.06em;color:#7e8db0">EXECUTE</span></a>
+  <a href="Treasury.dc.html" data-dk="treasury" style="display:flex;flex-direction:column;align-items:center;gap:4px;width:64px;padding:10px 4px;border-radius:11px"><span style="font-size:17px">&#128176;</span><span style="font-family:'JetBrains Mono';font-size:8.5px;letter-spacing:.06em;color:#7e8db0">TREASURY</span></a>
+  <a href="SoulMint.dc.html" data-dk="soulmint" style="display:flex;flex-direction:column;align-items:center;gap:4px;width:64px;padding:10px 4px;border-radius:11px"><span style="font-size:17px">&#9672;</span><span style="font-family:'JetBrains Mono';font-size:8.5px;letter-spacing:.06em;color:#7e8db0">IDENTITY</span></a>
+</div>
+
+<div style="position:fixed;left:108px;top:90px;z-index:35;width:330px;pointer-events:auto">
+  <div style="font-family:'JetBrains Mono';font-size:11px;letter-spacing:.26em;color:#4aa3ff;text-transform:uppercase">Decentralized Infrastructure</div>
+  <h1 style="font-family:'Space Grotesk';font-weight:700;font-size:34px;line-height:1.04;margin:10px 0 0;letter-spacing:-0.01em">Network Operations Center</h1>
+  <p style="font-size:14px;line-height:1.5;color:#aab7d4;margin:12px 0 0">Real-time view of the NEXUS fabric &mdash; every node, route and proof, alive across the globe.</p>
+  <div style="margin-top:18px;display:flex;flex-direction:column;gap:9px;width:250px">
+    <div style="display:flex;align-items:center;gap:10px;background:linear-gradient(160deg,rgba(11,20,38,0.72),rgba(7,12,24,0.66));border:1px solid rgba(74,130,230,0.22);border-radius:12px;padding:11px 13px;backdrop-filter:blur(12px)"><div style="width:34px;height:34px;border-radius:9px;background:rgba(74,222,128,0.14);display:flex;align-items:center;justify-content:center;color:#4ade80">&#9650;</div><div><div style="font-family:'Space Grotesk';font-weight:700;font-size:20px;line-height:1">99.98%</div><div style="font-size:11px;color:#8694b4">Network uptime &middot; <span style="color:#4ade80">Excellent</span></div></div></div>
+    <div style="display:flex;align-items:center;gap:10px;background:linear-gradient(160deg,rgba(11,20,38,0.72),rgba(7,12,24,0.66));border:1px solid rgba(74,130,230,0.22);border-radius:12px;padding:11px 13px;backdrop-filter:blur(12px)"><div style="width:34px;height:34px;border-radius:9px;background:rgba(74,163,255,0.14);display:flex;align-items:center;justify-content:center;color:#4aa3ff">&#9783;</div><div><div style="font-family:'Space Grotesk';font-weight:700;font-size:20px;line-height:1"><span id="nw-nodes">3,672</span></div><div style="font-size:11px;color:#8694b4">Active nodes &middot; 84 countries</div></div></div>
+  </div>
+</div>
+
+<div id="nx-anchors" style="position:fixed;inset:0;z-index:20;pointer-events:none"></div>
+
+<div style="position:fixed;right:24px;top:84px;z-index:35;width:286px;pointer-events:auto;background:linear-gradient(165deg,rgba(11,20,38,0.86),rgba(7,12,24,0.82));border:1px solid rgba(74,130,230,0.3);border-radius:18px;backdrop-filter:blur(18px);padding:20px;box-shadow:0 30px 80px -24px rgba(0,0,0,0.85),inset 0 1px 0 rgba(140,180,255,0.1)">
+  <div style="display:flex;align-items:center;justify-content:space-between"><span style="font-family:'Space Grotesk';font-weight:700;font-size:16px">Live Metrics</span><span style="font-family:'JetBrains Mono';font-size:10px;color:#4ade80;display:flex;align-items:center;gap:5px"><span style="width:5px;height:5px;border-radius:50%;background:#4ade80;box-shadow:0 0 6px #4ade80;animation:nxpulse 2s infinite"></span>LIVE</span></div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:14px">
+    <div style="background:rgba(74,163,255,0.06);border:1px solid rgba(74,130,230,0.18);border-radius:11px;padding:11px"><div style="font-size:10.5px;color:#8694b4">Tasks executed</div><div style="font-family:'Space Grotesk';font-weight:700;font-size:18px;margin-top:3px">1.24M</div><div style="font-size:10px;color:#4ade80">+12.6%</div></div>
+    <div style="background:rgba(74,163,255,0.06);border:1px solid rgba(74,130,230,0.18);border-radius:11px;padding:11px"><div style="font-size:10.5px;color:#8694b4">Proofs verified</div><div style="font-family:'Space Grotesk';font-weight:700;font-size:18px;margin-top:3px">98.7%</div><div style="font-size:10px;color:#4ade80">+15.3%</div></div>
+    <div style="background:rgba(74,163,255,0.06);border:1px solid rgba(74,130,230,0.18);border-radius:11px;padding:11px"><div style="font-size:10.5px;color:#8694b4">Value secured</div><div style="font-family:'Space Grotesk';font-weight:700;font-size:18px;margin-top:3px;color:#4ade80">$98.7M</div><div style="font-size:10px;color:#4ade80">+13.2%</div></div>
+    <div style="background:rgba(74,163,255,0.06);border:1px solid rgba(74,130,230,0.18);border-radius:11px;padding:11px"><div style="font-size:10.5px;color:#8694b4">Avg latency</div><div style="font-family:'Space Grotesk';font-weight:700;font-size:18px;margin-top:3px"><span id="nw-lat">28</span>ms</div><div style="font-size:10px;color:#4ade80">-3.1%</div></div>
+  </div>
+  <div style="font-family:'JetBrains Mono';font-size:9.5px;letter-spacing:.18em;color:#6a7da0;text-transform:uppercase;margin:18px 0 9px">Infrastructure types</div>
+  <div style="display:flex;flex-direction:column;gap:8px">
+    <div><div style="display:flex;justify-content:space-between;font-size:11.5px;color:#b7c4e0"><span>Compute nodes</span><span style="color:#8694b4">1,256</span></div><div style="height:5px;border-radius:3px;background:rgba(255,255,255,0.06);margin-top:4px"><div style="height:100%;width:78%;background:linear-gradient(90deg,#4aa3ff,#7c5cff);border-radius:3px"></div></div></div>
+    <div><div style="display:flex;justify-content:space-between;font-size:11.5px;color:#b7c4e0"><span>Storage nodes</span><span style="color:#8694b4">982</span></div><div style="height:5px;border-radius:3px;background:rgba(255,255,255,0.06);margin-top:4px"><div style="height:100%;width:60%;background:linear-gradient(90deg,#34d4c0,#4aa3ff);border-radius:3px"></div></div></div>
+    <div><div style="display:flex;justify-content:space-between;font-size:11.5px;color:#b7c4e0"><span>Validation nodes</span><span style="color:#8694b4">768</span></div><div style="height:5px;border-radius:3px;background:rgba(255,255,255,0.06);margin-top:4px"><div style="height:100%;width:47%;background:linear-gradient(90deg,#a874ff,#7c5cff);border-radius:3px"></div></div></div>
+    <div><div style="display:flex;justify-content:space-between;font-size:11.5px;color:#b7c4e0"><span>Oracle nodes</span><span style="color:#8694b4">238</span></div><div style="height:5px;border-radius:3px;background:rgba(255,255,255,0.06);margin-top:4px"><div style="height:100%;width:18%;background:linear-gradient(90deg,#f5b740,#e08a2a);border-radius:3px"></div></div></div>
+  </div>
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-top:16px;padding-top:14px;border-top:1px solid rgba(74,130,230,0.16)"><div><div style="font-size:10.5px;color:#8694b4">Security rating</div><div style="font-family:'Space Grotesk';font-weight:700;font-size:16px;color:#4aa3ff">AAA</div></div><button style="background:rgba(74,163,255,0.1);border:1px solid rgba(74,130,230,0.3);color:#9fc6ff;font-family:'Manrope';font-weight:600;font-size:12px;padding:9px 14px;border-radius:9px;cursor:pointer">View Explorer &#8599;</button></div>
+</div>
+
+<div style="position:fixed;left:108px;bottom:24px;z-index:35;display:flex;align-items:center;gap:16px;font-family:'JetBrains Mono';font-size:11px;color:#8694b4;pointer-events:auto;background:rgba(9,15,28,0.6);border:1px solid rgba(74,130,230,0.18);border-radius:12px;padding:10px 16px;backdrop-filter:blur(12px);max-width:62vw;overflow:hidden">
+  <span style="display:flex;align-items:center;gap:7px;color:#4ade80"><span style="width:6px;height:6px;border-radius:50%;background:#4ade80;box-shadow:0 0 8px #4ade80;animation:nxpulse 2s infinite"></span>FEED</span>
+  <span id="nw-feed">New node registered &middot; Singapore</span>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  componentDidMount() {
+    const dk = document.querySelector('#nx-dock [data-dk="network"]');
+    if (dk) { dk.style.background = 'linear-gradient(150deg,rgba(74,163,255,0.3),rgba(59,130,246,0.16))'; dk.style.boxShadow = 'inset 0 0 0 1px rgba(74,163,255,0.5)'; dk.querySelector('span:last-child').style.color = '#9fc6ff'; }
+    // holographic region labels anchored in 3D around the globe
+    this.regions = [
+      { id: 'r1', name: 'North America', nodes: 1042, status: 'Healthy', pos: [-6, 36, 16] },
+      { id: 'r2', name: 'Europe', nodes: 1184, status: 'Healthy', pos: [16, 40, -12] },
+      { id: 'r3', name: 'Asia Pacific', nodes: 968, status: 'High load', pos: [24, 22, 6] },
+      { id: 'r4', name: 'South America', nodes: 478, status: 'Healthy', pos: [8, 12, 20] }
+    ];
+    this.buildAnchors();
+    (async()=>{try{if(!window.NexusAPI)return;const n=await NexusAPI.network();this._realAgents=Number(n.totalAgents);this._feeds=['Chain '+n.chainId+' · block '+Number(n.block).toLocaleString(),n.totalAgents+' agents minted',n.totalReceipts+' composite receipts','Contracts live on 0G Galileo','Proof anchored on 0G Chain'];}catch(e){}})();
+    const feeds = ['New node registered · Singapore', 'Proof verified · 0x7a8f…9c2d', 'Task executed · Data Indexing', 'Value secured · $1.24M', 'Node sync · Frankfurt', 'Attestation recorded · Tokyo'];
+    let fi = 0;
+    this._tick = setInterval(() => {
+      var F = this._feeds || feeds; fi = (fi + 1) % F.length; const el = document.getElementById('nw-feed'); if (el) el.textContent = F[fi];
+      const ln = document.getElementById('nw-lat'); if (ln) ln.textContent = (26 + (Math.random() * 5 | 0));
+      const nn = document.getElementById('nw-nodes'); if (nn) nn.textContent = (this._realAgents != null ? this._realAgents : 3672 + (Math.random() * 8 | 0)).toLocaleString();
+    }, 1600);
+    this.mouse = { x: 0, y: 0 };
+    this._mm = (e) => { this.mouse.x = e.clientX / innerWidth * 2 - 1; this.mouse.y = e.clientY / innerHeight * 2 - 1; };
+    window.addEventListener('mousemove', this._mm, { passive: true });
+    this.wait();
+  }
+  buildAnchors() {
+    const layer = document.getElementById('nx-anchors');
+    this.regions.forEach(r => {
+      const hot = r.status !== 'Healthy';
+      const el = document.createElement('div');
+      el.id = 'an-' + r.id;
+      el.style.cssText = 'position:absolute;left:0;top:0;opacity:0;pointer-events:auto;transition:opacity .5s,box-shadow .2s;border:1px solid rgba(74,130,230,0.28);border-left:2px solid ' + (hot ? '#f5b740' : '#4ade80') + ';background:linear-gradient(160deg,rgba(11,20,38,0.9),rgba(7,12,24,0.86));backdrop-filter:blur(12px);border-radius:11px;padding:10px 13px;box-shadow:0 16px 40px -16px rgba(0,0,0,0.8);white-space:nowrap';
+      el.innerHTML =
+        '<div style="display:flex;align-items:center;gap:8px"><span style="width:7px;height:7px;border-radius:50%;background:' + (hot ? '#f5b740' : '#4ade80') + ';box-shadow:0 0 8px ' + (hot ? '#f5b740' : '#4ade80') + '"></span><span style="font-family:\'Space Grotesk\';font-weight:600;font-size:13px">' + r.name + '</span></div>' +
+        '<div style="display:flex;gap:14px;margin-top:7px;font-family:\'JetBrains Mono\';font-size:10.5px"><span style="color:#9fb0d0">' + r.nodes.toLocaleString() + ' nodes</span><span style="color:' + (hot ? '#f5b740' : '#7fe6a3') + '">' + r.status + '</span></div>';
+      layer.appendChild(el);
+    });
+  }
+  wait() { if (window.THREE && window.NexusDistrict) { this.init(); return; } this._w = setTimeout(() => this.wait(), 60); }
+  init() {
+    const anchors = this.regions.map(r => ({ el: document.getElementById('an-' + r.id), pos: r.pos }));
+    this.ctrl = window.NexusDistrict.mount('nx-scene', {
+      theme: 'network', accent: 0x4aa3ff, nodes: [], anchors,
+      camera: { pos: [4, 30, 70], look: [0, 22, 0] }
+    });
+    setTimeout(() => {
+      document.querySelectorAll('#nx-anchors > div').forEach(el => el.style.opacity = '1');
+      const l = document.getElementById('nx-loader'); if (l) { l.style.opacity = '0'; setTimeout(() => l.style.display = 'none', 950); }
+    }, 650);
+  }
+  componentWillUnmount() { clearTimeout(this._w); clearInterval(this._tick); window.removeEventListener('mousemove', this._mm); if (this.ctrl) this.ctrl.dispose(); }
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

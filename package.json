@@ -1,0 +1,29 @@
+{
+  "name": "nexus",
+  "private": true,
+  "version": "0.1.0",
+  "description": "NEXUS — the verifiable AI agent layer on 0G",
+  "scripts": {
+    "build:contracts": "cd contracts && forge build",
+    "test:contracts": "cd contracts && forge test -vv",
+    "gen:abis": "node packages/sdk/scripts/extract-abis.mjs",
+    "deploy:testnet": "tsx scripts/deploy.ts && pnpm gen:abis",
+    "gate:all": "pnpm gate:g3 && pnpm gate:g2 && pnpm gate:g1 && pnpm gate:g4",
+    "gate:g1": "tsx scripts/g1-mint.ts",
+    "gate:g2": "tsx scripts/g2-inference.ts",
+    "gate:g3": "tsx scripts/g3-storage.ts",
+    "gate:g4": "tsx scripts/g4-escrow.ts",
+    "demo:level1": "tsx scripts/demo-level1.ts",
+    "demo:level2": "tsx scripts/demo-level2.ts",
+    "dev": "pnpm --filter @nexus/app dev",
+    "start": "pnpm --filter @nexus/app start",
+    "build": "pnpm --filter @nexus/app build",
+    "api": "pnpm --filter @nexus/app dev",
+    "ui": "node scripts/serve-ui.mjs"
+  },
+  "devDependencies": {
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2"
+  },
+  "packageManager": "pnpm@10.32.1"
+}

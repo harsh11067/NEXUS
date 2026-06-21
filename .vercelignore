@@ -1,0 +1,13 @@
+node_modules
+**/node_modules
+.next
+app/.next
+contracts/lib
+contracts/out
+contracts/cache
+contracts/broadcast
+NEXUS_UI/screenshots
+NEXUS_UI/uploads
+NEXUS_UI/.thumbnail
+.git
+*.log
