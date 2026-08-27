@@ -1,0 +1,45 @@
+{
+  "scenario": "escrow",
+  "network": "mainnet",
+  "chainId": 16661,
+  "explorer": "https://chainscan.0g.ai",
+  "startedAt": "2026-08-27T07:26:00.677Z",
+  "finishedAt": "2026-08-27T07:27:25.397Z",
+  "assertions": [
+    {
+      "claim": "over-per-tx lock attempt reverts OverPerTx",
+      "pass": true,
+      "detail": "reverted OverPerTx (0xc1db0bec)"
+    },
+    {
+      "claim": "disallowed-merchant lock attempt reverts MerchantNotAllowed",
+      "pass": true,
+      "detail": "reverted MerchantNotAllowed (0x84d9e4ff)"
+    },
+    {
+      "claim": "payment marked SETTLED on chain",
+      "pass": true
+    },
+    {
+      "claim": "merchant received the escrowed funds",
+      "pass": true,
+      "detail": "1706213749650584 -> 1906213749650584"
+    }
+  ],
+  "agentId": "6",
+  "mintTx": "0x913a15358bd053ec17dcea8ec5e0c0946fa38d46d1774a1431448d5da7362795",
+  "merchant": "0xe993A45495B27b9cd55AE409c44ABE12c40eA0f1",
+  "bindTx": "0x711f2c82811c420cda975257fe2be16819e61be7396b87d9d7509916992f6066",
+  "policy": {
+    "maxPerTx": "500000000000000",
+    "dailyBudget": "2000000000000000",
+    "allowedMerchants": [
+      "0xe993A45495B27b9cd55AE409c44ABE12c40eA0f1"
+    ]
+  },
+  "lockTx": "0x91b4afd904cd43743f257f8eb9d8b7cd7ae8417ab587bbaa2c7efae69172f5f1",
+  "paymentId": "0xff3dffd7a69cb10b24c987154d73aabaa4c417d370a88590f2153018eb026b73",
+  "fulfillTx": "0x54544e8105e20b776dbc8f72c2db9e919f5f8b30ae2c198a66ef0cc156a62cea",
+  "settleTx": "0x5701388a55d8025cdf7994f7a889b60b52c19a9c14fe6f10ded18d49bad12a61",
+  "settleTxUrl": "https://chainscan.0g.ai/tx/0x5701388a55d8025cdf7994f7a889b60b52c19a9c14fe6f10ded18d49bad12a61"
+}

@@ -8,6 +8,17 @@ hands-on-keys checklist, this file for the "do it in this order".
 
 Last audited against the repo: 2026-08-27.
 
+> **STATUS 2026-08-27 (post-execution): Phases A–D are DONE on mainnet.**
+> 5 contracts deployed + source-verified on 16661 (`contracts/deployments/mainnet.json`),
+> full network parameterization landed (`OG_NETWORK` / `NEXT_PUBLIC_USE_MAINNET`),
+> mainnet storage round-trip + **TeeML hardware-verified Sealed Inference** proven
+> (receipt #1, `processResponse === true`), all demo scripts + append-only
+> `evidence/` + `verify:proofs` + `gather:proofs --network` landed and green,
+> ProofPass shipped (SDK `verifyReceipt`, `/api/verify/[receiptId]`,
+> `/api/badge/[receiptId]`, RE-VERIFY LIVE on `/proof/[id]`).
+> Remaining 🧑 items: record the ≤3-min demo video, the public X post, and the
+> AKINDO submission (§ Phase D) — only a human can do those.
+
 ---
 
 ## 0. Reality check — what is actually built vs. what the specs assume

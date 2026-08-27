@@ -1,0 +1,45 @@
+{
+  "scenario": "escrow",
+  "network": "galileo",
+  "chainId": 16602,
+  "explorer": "https://chainscan-galileo.0g.ai",
+  "startedAt": "2026-08-27T07:48:35.817Z",
+  "finishedAt": "2026-08-27T07:50:06.544Z",
+  "assertions": [
+    {
+      "claim": "over-per-tx lock attempt reverts OverPerTx",
+      "pass": true,
+      "detail": "reverted OverPerTx (0xc1db0bec)"
+    },
+    {
+      "claim": "disallowed-merchant lock attempt reverts MerchantNotAllowed",
+      "pass": true,
+      "detail": "reverted MerchantNotAllowed (0x84d9e4ff)"
+    },
+    {
+      "claim": "payment marked SETTLED on chain",
+      "pass": true
+    },
+    {
+      "claim": "merchant received the escrowed funds",
+      "pass": true,
+      "detail": "1691231999459656 -> 1891231999459656"
+    }
+  ],
+  "agentId": "12",
+  "mintTx": "0xa5ab72900076ef73a1829fdf4da6cf94e532dc95a8c58cf857f545b9fdda6c6f",
+  "merchant": "0x71D74407B9B16D48E5Aa09d78917Cfc5aCB4583a",
+  "bindTx": "0xc9b1298203ed6b2c7d1e320124b1efc5c3ca05b940aeb35d654d9201a3aefd3b",
+  "policy": {
+    "maxPerTx": "500000000000000",
+    "dailyBudget": "2000000000000000",
+    "allowedMerchants": [
+      "0x71D74407B9B16D48E5Aa09d78917Cfc5aCB4583a"
+    ]
+  },
+  "lockTx": "0xa5ef1f10863b9846144ce23a60e80175eb81a07d9745960694137dbd16f2c8e0",
+  "paymentId": "0x133fc124ebc4526feb3ea0d002eb70ec843c2cf12074b73934345b9df56f9246",
+  "fulfillTx": "0x81050595b350e42d62f85f537385695c8d9ae28a2199ce022f0f6fbb9a71a40e",
+  "settleTx": "0x3a77635a061d4c294214b47d4981355a13ec950514aa09d95c5a7fff8becd602",
+  "settleTxUrl": "https://chainscan-galileo.0g.ai/tx/0x3a77635a061d4c294214b47d4981355a13ec950514aa09d95c5a7fff8becd602"
+}

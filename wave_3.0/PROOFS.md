@@ -37,7 +37,12 @@ pnpm verify:proofs               # re-checks every row below against chain
 
 `forge test` → **39/39 passing.**
 
-**Mainnet (chainId 16661) — Wave 3 target:** populated by `gather-proofs.ts --network mainnet` after Phase A deploy. Table shape identical; explorer host `chainscan.0g.ai`.
+**Mainnet (chainId 16661) — LIVE:** see the auto-generated **`docs/PROOFS.mainnet.md`**
+(regenerate anytime with `pnpm gather:proofs -- --network mainnet`). All 5 contracts
+deployed + source-verified; mint/transfer/clone/escrow/refund/reputation/receipt all
+proven with append-only artifacts in `evidence/mainnet/` and re-checkable via
+`OG_NETWORK=mainnet pnpm verify:proofs`. TEE run for judges (A-03):
+`processResponse("0xd9966e13a6026Fcca4b13E7ff95c94DE268C471C", "2cbdf7be-bde2-4317-bb27-50d5e9ae2329") → true`.
 
 ## B. The evidence index (claim → artifact → inspect → reproduce)
 

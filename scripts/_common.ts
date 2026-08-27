@@ -34,10 +34,14 @@ export async function preflight(opts: { needDeployments?: boolean } = {}) {
   info("wallet", wallet.address);
   info("balance", `${formatEther(bal)} 0G`);
   if (bal === 0n) {
-    fail("Wallet has 0 balance. Fund it at https://faucet.0g.ai before running gate-checks.");
+    fail(
+      config.network() === "mainnet"
+        ? "Mainnet wallet has 0 balance. Fund OG_MAINNET_KEY with real 0G first."
+        : "Wallet has 0 balance. Fund it at https://faucet.0g.ai before running gate-checks.",
+    );
   }
   if (opts.needDeployments && !deploymentsExist()) {
-    fail("No deployments/galileo.json. Deploy first: `pnpm deploy:testnet`.");
+    fail(`No ${config.network()} deployments. Deploy first: \`pnpm deploy:${config.network() === "mainnet" ? "mainnet" : "testnet"}\`.`);
   }
   return { wallet, provider };
 }

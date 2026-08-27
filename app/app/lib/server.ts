@@ -18,9 +18,11 @@ export async function systemStatus() {
   const out: any = {
     configured: false,
     deployed: deploymentsExist(),
-    chainId: Number(process.env.OG_CHAIN_ID ?? 16602),
-    rpcUrl: process.env.OG_RPC_URL ?? "https://evmrpc-testnet.0g.ai",
-    explorerUrl: process.env.OG_EXPLORER_URL ?? "https://chainscan-galileo.0g.ai",
+    network: config.network(),
+    networkLabel: config.networkLabel(),
+    chainId: config.chainId(),
+    rpcUrl: config.rpcUrl(),
+    explorerUrl: config.explorerUrl(),
     computeMode: process.env.OG_COMPUTE_MODE ?? "router",
     computeReady:
       (process.env.OG_COMPUTE_MODE ?? "router") === "router"

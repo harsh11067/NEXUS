@@ -1,0 +1,32 @@
+{
+  "scenario": "clone",
+  "network": "mainnet",
+  "chainId": 16661,
+  "explorer": "https://chainscan.0g.ai",
+  "startedAt": "2026-08-27T07:22:56.889Z",
+  "finishedAt": "2026-08-27T07:23:52.617Z",
+  "assertions": [
+    {
+      "claim": "cloneCount incremented on chain",
+      "pass": true,
+      "detail": "0 -> 1"
+    },
+    {
+      "claim": "clone is owned by the cloner",
+      "pass": true,
+      "detail": "0x606874CbB32FCb520E508C44B154066eA6779E2d"
+    },
+    {
+      "claim": "clone persona decrypts with the cloner key",
+      "pass": true,
+      "detail": "282 bytes"
+    }
+  ],
+  "mintTx": "0x4bf45d456201238f0745a63507e533f21f916c7fee7415162b3695868e6248bd",
+  "agentId": "3",
+  "newAgentId": "4",
+  "cloneTx": "0xbc612e5e0038989a897e153d2bbbcec32f6d413f6920039b18bccc763cd7ae19",
+  "cloneTxUrl": "https://chainscan.0g.ai/tx/0xbc612e5e0038989a897e153d2bbbcec32f6d413f6920039b18bccc763cd7ae19",
+  "royaltyWei": "1000000000000000",
+  "royaltyNote": "creator == payer in this run; royalty nets out (tx event still shows the transfer)"
+}

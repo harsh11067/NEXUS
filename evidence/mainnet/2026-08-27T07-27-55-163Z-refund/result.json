@@ -1,0 +1,30 @@
+{
+  "scenario": "refund",
+  "network": "mainnet",
+  "chainId": 16661,
+  "explorer": "https://chainscan.0g.ai",
+  "startedAt": "2026-08-27T07:27:55.163Z",
+  "finishedAt": "2026-08-27T07:29:23.726Z",
+  "assertions": [
+    {
+      "claim": "refund before TTL reverts TtlNotElapsed",
+      "pass": true,
+      "detail": "reverted TtlNotElapsed (0x72737069)"
+    },
+    {
+      "claim": "payer balance restored (amount back minus gas)",
+      "pass": true,
+      "detail": "3330452221118013124 -> 3330482089071128478"
+    },
+    {
+      "claim": "payment status == REFUNDED on chain",
+      "pass": true,
+      "detail": "status=4"
+    }
+  ],
+  "agentId": "7",
+  "lockTx": "0x5cdcb15111de8d262e029dffc27e3e325f4d9cfddda550296dbc23b01fcc583f",
+  "paymentId": "0x7b9ed821930fcf441ece897ed939c7b668c861dc16ad72eb1cdaf8d20b906b92",
+  "refundTx": "0x912133e2f9f4fe25fffcc1155460a707f60cb0ce5e508ea47bda253abeaa4b12",
+  "refundTxUrl": "https://chainscan.0g.ai/tx/0x912133e2f9f4fe25fffcc1155460a707f60cb0ce5e508ea47bda253abeaa4b12"
+}

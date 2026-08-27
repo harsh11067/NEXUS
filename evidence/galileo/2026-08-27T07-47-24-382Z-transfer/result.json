@@ -1,0 +1,38 @@
+{
+  "scenario": "transfer",
+  "network": "galileo",
+  "chainId": 16602,
+  "explorer": "https://chainscan-galileo.0g.ai",
+  "startedAt": "2026-08-27T07:47:24.382Z",
+  "finishedAt": "2026-08-27T07:48:33.993Z",
+  "assertions": [
+    {
+      "claim": "ownership flipped to the buyer on chain",
+      "pass": true,
+      "detail": "0x606874CbB32FCb520E508C44B154066eA6779E2d"
+    },
+    {
+      "claim": "cipherRef changed (brain re-encrypted)",
+      "pass": true,
+      "detail": "0x34256150717c114ec997a9f6cbc936e3bbdf600e70130203cc9d7c6f4cce356e"
+    },
+    {
+      "claim": "SELLER key can NO LONGER decrypt the new blob",
+      "pass": true
+    },
+    {
+      "claim": "BUYER key decrypts the new blob",
+      "pass": true,
+      "detail": "339 bytes"
+    }
+  ],
+  "mintTx": "0x8e25cec73e739fabc0d3eaff28802b1acbb828ad1b407fc0490ec0fd7c3860ce",
+  "agentId": "11",
+  "seller": "0x01239786Ac8c9D78F8055045d7a3e7E18e5492DA",
+  "buyer": "0x606874CbB32FCb520E508C44B154066eA6779E2d",
+  "requestTx": "0x8196d6b7053f1d776cf58b96621a7dbf6c665478c1a2b4104417942c0cfa8bf4",
+  "finalizeTx": "0xc92310794ca2c0ccbb769393742fae045d6c3626cce04cc28c7050f66efdff4b",
+  "finalizeTxUrl": "https://chainscan-galileo.0g.ai/tx/0xc92310794ca2c0ccbb769393742fae045d6c3626cce04cc28c7050f66efdff4b",
+  "oldCipherRoot": "0x81745dd367d65f0ca1e0069b75f0f36132cc357879600b0ef6eda7133e7de540",
+  "newCipherRoot": "0x34256150717c114ec997a9f6cbc936e3bbdf600e70130203cc9d7c6f4cce356e"
+}

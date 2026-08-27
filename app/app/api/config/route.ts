@@ -14,7 +14,8 @@ export async function GET() {
     return NextResponse.json({
       chainId,
       chainHex: "0x" + chainId.toString(16),
-      chainName: "0G Galileo Testnet",
+      network: config.network(),
+      chainName: config.networkLabel(),
       rpcUrl: config.rpcUrl(),
       explorerUrl: config.explorerUrl(),
       currency: { name: "0G", symbol: "0G", decimals: 18 },

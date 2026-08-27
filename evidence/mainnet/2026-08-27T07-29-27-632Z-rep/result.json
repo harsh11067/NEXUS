@@ -1,0 +1,22 @@
+{
+  "scenario": "rep",
+  "network": "mainnet",
+  "chainId": 16661,
+  "explorer": "https://chainscan.0g.ai",
+  "startedAt": "2026-08-27T07:29:27.632Z",
+  "finishedAt": "2026-08-27T07:29:29.203Z",
+  "assertions": [
+    {
+      "claim": "operator wallet is not a reputation writer",
+      "pass": true
+    },
+    {
+      "claim": "direct updateScore by non-writer reverts NotWriter",
+      "pass": true,
+      "detail": "reverted NotWriter (0x751a1cd0)"
+    }
+  ],
+  "agentId": "1",
+  "recentScoreUpdates": [],
+  "note": "every ScoreUpdated on chain carries a receiptHash; there is no reviews path"
+}

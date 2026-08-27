@@ -1,0 +1,22 @@
+{
+  "scenario": "rep",
+  "network": "galileo",
+  "chainId": 16602,
+  "explorer": "https://chainscan-galileo.0g.ai",
+  "startedAt": "2026-08-27T07:50:10.161Z",
+  "finishedAt": "2026-08-27T07:50:12.299Z",
+  "assertions": [
+    {
+      "claim": "operator wallet is not a reputation writer",
+      "pass": true
+    },
+    {
+      "claim": "direct updateScore by non-writer reverts NotWriter",
+      "pass": true,
+      "detail": "reverted NotWriter (0x751a1cd0)"
+    }
+  ],
+  "agentId": "1",
+  "recentScoreUpdates": [],
+  "note": "every ScoreUpdated on chain carries a receiptHash; there is no reviews path"
+}

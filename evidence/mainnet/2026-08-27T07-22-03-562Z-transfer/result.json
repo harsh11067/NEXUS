@@ -1,0 +1,37 @@
+{
+  "scenario": "transfer",
+  "network": "mainnet",
+  "chainId": 16661,
+  "explorer": "https://chainscan.0g.ai",
+  "startedAt": "2026-08-27T07:22:03.562Z",
+  "finishedAt": "2026-08-27T07:22:46.312Z",
+  "assertions": [
+    {
+      "claim": "ownership flipped to the buyer on chain",
+      "pass": true,
+      "detail": "0x606874CbB32FCb520E508C44B154066eA6779E2d"
+    },
+    {
+      "claim": "cipherRef changed (brain re-encrypted)",
+      "pass": true,
+      "detail": "0x03321a1551719b8052ce410602298d9513f247e43bf0d408e125b05cd3334516"
+    },
+    {
+      "claim": "SELLER key can NO LONGER decrypt the new blob",
+      "pass": true
+    },
+    {
+      "claim": "BUYER key decrypts the new blob",
+      "pass": true,
+      "detail": "339 bytes"
+    }
+  ],
+  "agentId": "2",
+  "seller": "0x907c508449eb3F9D14BD8844AC71839DE90bD046",
+  "buyer": "0x606874CbB32FCb520E508C44B154066eA6779E2d",
+  "requestTx": "0x042e5c583b0b5cdf2e01abdf0046b0d5e2159201396de7d5c1e7d1f8c215701c",
+  "finalizeTx": "0xccfc4a0997ba4f1a9278f29f61734f7b03c1e82e5e8eff4e80a05f141723acf3",
+  "finalizeTxUrl": "https://chainscan.0g.ai/tx/0xccfc4a0997ba4f1a9278f29f61734f7b03c1e82e5e8eff4e80a05f141723acf3",
+  "oldCipherRoot": "0x8b1b03e246ba5afddaaf2c85bc0b72784682315f063dff61390a798571417769",
+  "newCipherRoot": "0x03321a1551719b8052ce410602298d9513f247e43bf0d408e125b05cd3334516"
+}

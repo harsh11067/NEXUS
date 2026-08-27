@@ -1,0 +1,39 @@
+{
+  "scenario": "mint",
+  "network": "mainnet",
+  "chainId": 16661,
+  "explorer": "https://chainscan.0g.ai",
+  "startedAt": "2026-08-27T07:10:37.683Z",
+  "finishedAt": "2026-08-27T07:10:56.841Z",
+  "assertions": [
+    {
+      "claim": "ownerOf(agentId) == minter wallet",
+      "pass": true,
+      "detail": "0x907c508449eb3F9D14BD8844AC71839DE90bD046"
+    },
+    {
+      "claim": "getPersonaRef on chain == uploaded storage root",
+      "pass": true,
+      "detail": "0x9ac9a9cac8c78f14dd451459d4645b81eacb4ad92cdc9c140bbb9b2f09c69b71"
+    },
+    {
+      "claim": "getPolicyHash on chain == locally recomputed policy hash",
+      "pass": true,
+      "detail": "0xb8ab0875bad31a141cbbdf98897117285d00eea329bebc9d8680378a7042e9d9"
+    },
+    {
+      "claim": "persona decrypts with the OWNER key",
+      "pass": true,
+      "detail": "name=Mainnet Sentinel"
+    },
+    {
+      "claim": "persona does NOT decrypt with a random (non-owner) key",
+      "pass": true
+    }
+  ],
+  "agentId": "1",
+  "mintTx": "0x1e5a12dd7a7dd8a27dbd4235c0dc1d404f1f2c58e4f33818db2d95de8ad2c13f",
+  "mintTxUrl": "https://chainscan.0g.ai/tx/0x1e5a12dd7a7dd8a27dbd4235c0dc1d404f1f2c58e4f33818db2d95de8ad2c13f",
+  "personaRootHash": "0x9ac9a9cac8c78f14dd451459d4645b81eacb4ad92cdc9c140bbb9b2f09c69b71",
+  "policyHash": "0xb8ab0875bad31a141cbbdf98897117285d00eea329bebc9d8680378a7042e9d9"
+}

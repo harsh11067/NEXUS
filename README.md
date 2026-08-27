@@ -13,7 +13,7 @@ Reputation comes from proofs, not reviews.
 
 [Architecture](docs/ARCHITECTURE.md) · [On-chain Proof](docs/PROOF.md) · [Setup](docs/SETUP.md) · [Docs](docs/DOCUMENTATION.md)
 
-`0G Galileo testnet · chainId 16602 · ERC-7857 · Sealed Inference TEE · 39/39 contract tests`
+`0G MAINNET · chainId 16661 · ERC-7857 · Sealed Inference TEE (TeeML, hardware-verified) · 39/39 contract tests · Galileo testnet fallback`
 
 </div>
 
@@ -70,6 +70,24 @@ Composite Receipt (0G DA)
 
 ---
 
+## Live 0G MAINNET Deployments (Wave 3)
+
+All 5 contracts are deployed **and source-verified** on **0G Mainnet** (Chain ID: `16661`), with the full loop proven live — including a **hardware-verified (TeeML) Sealed Inference run** re-verifiable by anyone via `processResponse`:
+
+*   **NexusAgent (ERC-7857)**: [`0x7D4eD6c120E41a241973760D8aD244f2f9Ec6793`](https://chainscan.0g.ai/address/0x7D4eD6c120E41a241973760D8aD244f2f9Ec6793)
+*   **ProofMeshReceipts**: [`0x709D50F09527b7a3AdC041dFA387f39151535A36`](https://chainscan.0g.ai/address/0x709D50F09527b7a3AdC041dFA387f39151535A36)
+*   **NexusEscrow**: [`0xB93c13b4Dbe322dF7B8051501A8E753f1A4Cd703`](https://chainscan.0g.ai/address/0xB93c13b4Dbe322dF7B8051501A8E753f1A4Cd703)
+*   **ReputationRegistry**: [`0xc04012c6586eaF48726D37206502682375e63137`](https://chainscan.0g.ai/address/0xc04012c6586eaF48726D37206502682375e63137)
+*   **CompositeReceiptMinter**: [`0x8Ecb868cFF8B9B809bB5318467b0C20d1d518c58`](https://chainscan.0g.ai/address/0x8Ecb868cFF8B9B809bB5318467b0C20d1d518c58)
+
+Live mainnet proof index (auto-generated from chain, never hand-typed): **[docs/PROOFS.mainnet.md](docs/PROOFS.mainnet.md)** · append-only run artifacts: **[evidence/mainnet/](evidence/mainnet/)**
+
+Proven live on 16661: mint (encrypted persona on mainnet 0G Storage) · **re-encryption transfer with seller access-loss** · clone + royalty · escrow with over-limit/wrong-merchant blocked on-chain · TTL refund · proof-only reputation (`NotWriter` guard) · **TEE-verified inference receipt with `AlreadyMinted` replay guard**.
+
+The app targets mainnet when `NEXT_PUBLIC_USE_MAINNET=true` (or `OG_NETWORK=mainnet`), with Galileo testnet as the always-on fallback.
+
+---
+
 ## Live Galileo Testnet Deployments (Originality Proofs)
 
 All contracts are compiled using Foundry and deployed directly to the **0G Galileo Testnet** (Chain ID: `16602`). These addresses are verifiable on the block explorer:
@@ -82,7 +100,17 @@ All contracts are compiled using Foundry and deployed directly to the **0G Galil
 
 ---
 
-## Status — **Levels 0–3 live on testnet** ✅
+## Status — **Wave 3: full loop live on MAINNET** ✅
+
+| Wave 3 target | Proven |
+|---|---|
+| 5 contracts deployed + **source-verified** on 16661 | ✅ [docs/PROOFS.mainnet.md](docs/PROOFS.mainnet.md) |
+| Real mainnet mint / transfer / clone / escrow / refund / reputation | ✅ `evidence/mainnet/*` (append-only, re-checkable via `pnpm verify:proofs`) |
+| **Hardware-verified Sealed Inference on mainnet** (TeeML, `processResponse === true`) | ✅ receipt #1, `{provider, chatID}` published for independent re-verification |
+| ProofPass: `/api/verify/[receiptId]` + client-side **RE-VERIFY LIVE** + embeddable badge | ✅ `/proof/1` re-derives all 7 checks from chain + storage + enclave |
+| Network switch with testnet fallback | ✅ `NEXT_PUBLIC_USE_MAINNET` / `OG_NETWORK` |
+
+## Levels 0–3 (testnet baseline) ✅
 
 Everything below ran against live 0G Galileo infrastructure (no mocks). Full tx links in **[docs/PROOF.md](docs/PROOF.md)**.
 
@@ -113,7 +141,22 @@ pnpm dev                      # → http://localhost:3000
 Reproduce the proofs straight from chain (no key needed):
 
 ```bash
-npx tsx scripts/gather-proofs.ts
+pnpm gather:proofs -- --network mainnet   # regenerates docs/PROOFS.mainnet.md from live chain
+OG_NETWORK=mainnet pnpm verify:proofs     # re-checks every evidence row (txs + storage roots)
+pnpm test:sdk                             # crypto + re-encryption access-loss unit tests
+./scripts/quickstart.sh                   # clean-clone reproducibility (A-07)
+```
+
+Run the live demos yourself (funded key required; add `OG_NETWORK=mainnet` for mainnet):
+
+```bash
+pnpm demo:mint      # encrypted persona on 0G Storage + ERC-7857 mint, fully asserted
+pnpm demo:transfer  # THE MONEY-SHOT: re-encryption sale — seller provably loses access
+pnpm demo:clone     # royalty clone
+pnpm demo:escrow    # over-limit + wrong-merchant blocked on-chain, then lock→fulfill→settle
+pnpm demo:refund    # TTL refund — funds can never lock
+pnpm demo:rep       # proof-only reputation (direct write reverts NotWriter)
+pnpm demo:receipt   # full prove-loop + TEE verify + AlreadyMinted replay guard
 ```
 
 ---

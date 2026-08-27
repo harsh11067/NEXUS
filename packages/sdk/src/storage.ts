@@ -18,6 +18,23 @@ function indexer(): Indexer {
   return _indexer;
 }
 
+/** Transient network faults (node resets, propagation lag) — retry, don't die. */
+const TRANSIENT = /ECONNRESET|ETIMEDOUT|ECONNREFUSED|socket hang up|fetch failed|not found|unavailable|EAI_AGAIN/i;
+
+async function withRetry<T>(label: string, attempts: number, delayMs: number, fn: () => Promise<T>): Promise<T> {
+  let lastErr: unknown;
+  for (let i = 1; i <= attempts; i++) {
+    try {
+      return await fn();
+    } catch (e) {
+      lastErr = e;
+      if (i === attempts || !TRANSIENT.test(String(e))) throw e;
+      await new Promise((r) => setTimeout(r, delayMs * i));
+    }
+  }
+  throw lastErr;
+}
+
 /** Upload raw bytes to 0G Storage. Returns the Merkle root hash (the CID). */
 export async function uploadBytes(bytes: Uint8Array, signer: Wallet): Promise<UploadResult> {
   const file = new MemData(bytes);
@@ -26,22 +43,27 @@ export async function uploadBytes(bytes: Uint8Array, signer: Wallet): Promise<Up
   const rootHash = tree!.rootHash();
   if (!rootHash) throw new Error("merkleTree returned empty root hash");
 
-  const [tx, uploadErr] = await indexer().upload(file, config.rpcUrl(), signer);
-  if (uploadErr !== null) {
-    // a blob already present on the network returns a benign "already exists"
-    const msg = String(uploadErr);
-    if (!/exist|already/i.test(msg)) throw new Error(`upload failed: ${msg}`);
-  }
-  const txHash = tx && typeof tx === "object" && "txHash" in tx ? (tx as any).txHash : undefined;
-  return { rootHash, txHash };
+  return withRetry("upload", 3, 5000, async () => {
+    const [tx, uploadErr] = await indexer().upload(file, config.rpcUrl(), signer);
+    if (uploadErr !== null) {
+      // a blob already present on the network returns a benign "already exists"
+      const msg = String(uploadErr);
+      if (!/exist|already/i.test(msg)) throw new Error(`upload failed: ${msg}`);
+    }
+    const txHash = tx && typeof tx === "object" && "txHash" in tx ? (tx as any).txHash : undefined;
+    return { rootHash, txHash };
+  });
 }
 
-/** Download bytes by root hash. Verifies the Merkle proof. */
+/** Download bytes by root hash. Verifies the Merkle proof. Retries through
+ *  transient node faults and propagation lag (3–5 min on a fresh upload). */
 export async function downloadBytes(rootHash: string): Promise<Uint8Array> {
-  const [blob, err] = await indexer().downloadToBlob(rootHash, { proof: true } as any);
-  if (err !== null) throw new Error(`download failed: ${err}`);
-  const ab = await (blob as unknown as { arrayBuffer: () => Promise<ArrayBuffer> }).arrayBuffer();
-  return new Uint8Array(ab);
+  return withRetry("download", 5, 8000, async () => {
+    const [blob, err] = await indexer().downloadToBlob(rootHash, { proof: true } as any);
+    if (err !== null) throw new Error(`download failed: ${err}`);
+    const ab = await (blob as unknown as { arrayBuffer: () => Promise<ArrayBuffer> }).arrayBuffer();
+    return new Uint8Array(ab);
+  });
 }
 
 /** Compute the 0G Storage root hash for some bytes without uploading. */

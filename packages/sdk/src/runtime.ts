@@ -131,6 +131,7 @@ export interface RunTaskResult {
   output: string;
   model: string;
   provider: string;
+  chatID: string;
   verified: boolean | null;
   inputHash: string;
   outputHash: string;
@@ -183,6 +184,7 @@ export async function runTask(
     output: inf.content,
     model: inf.model,
     provider: inf.provider,
+    chatID: inf.chatID,
     verified: inf.verified,
     inputHash: inf.inputHash,
     outputHash: inf.outputHash,
@@ -537,6 +539,7 @@ export async function getReceiptProof(receiptId: string, wallet?: Wallet) {
     session: { id: r.sessionId, traceCIDHash: r.traceCIDHash, url: explorerAddress(d.ProofMeshReceipts) },
     tee: {
       provider: tee.provider ?? "",
+      chatID: tee.chatID ?? "",
       model: tee.model ?? "",
       verified: tee.verified ?? null,
       outputHash: tee.outputHash ?? "",

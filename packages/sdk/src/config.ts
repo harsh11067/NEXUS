@@ -1,13 +1,26 @@
 /**
- * Environment + deployment configuration. Loads .env, the deployments file, and
+ * Environment + deployment configuration. Loads .env, resolves the target 0G
+ * network (galileo testnet | mainnet), loads the right deployments file, and
  * builds the ethers provider/wallet. Everything that needs the chain goes
  * through here so there is exactly one source of truth.
+ *
+ * Network selection precedence:
+ *   1. OG_NETWORK=galileo|mainnet  (explicit)
+ *   2. NEXT_PUBLIC_USE_MAINNET=true  (the app-side switch from EXECUTE.md A4)
+ *   3. OG_CHAIN_ID=16661 -> mainnet
+ *   4. default: galileo
+ *
+ * Generic env overrides (OG_RPC_URL etc.) still apply, EXCEPT when the value
+ * is exactly the OTHER network's well-known default — that's a stale .env
+ * leftover, not an intentional override, and the preset wins. This makes
+ * `OG_NETWORK=mainnet pnpm <script>` correct even with a testnet-filled .env.
  */
 import { readFileSync, existsSync } from "node:fs";
 import { resolve, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { JsonRpcProvider, Wallet } from "ethers";
 import { pubKeyOf, addressOf } from "./crypto.js";
+import { EMBEDDED_DEPLOYMENTS } from "./deployments.generated.js";
 
 // Resolve the repo root robustly: walk up from cwd looking for the workspace
 // marker (works under tsx AND when this package is bundled by Next.js, where
@@ -51,6 +64,67 @@ function loadDotEnv() {
 }
 loadDotEnv();
 
+// ----------------------------------------------------------------- networks
+export type NetworkName = "galileo" | "mainnet";
+
+export interface NetworkPreset {
+  name: NetworkName;
+  label: string;
+  chainId: number;
+  rpcUrl: string;
+  explorerUrl: string;
+  storageIndexer: string;
+  storageExplorer: string;
+}
+
+export const NETWORKS: Record<NetworkName, NetworkPreset> = {
+  galileo: {
+    name: "galileo",
+    label: "0G Galileo Testnet",
+    chainId: 16602,
+    rpcUrl: "https://evmrpc-testnet.0g.ai",
+    explorerUrl: "https://chainscan-galileo.0g.ai",
+    storageIndexer: "https://indexer-storage-testnet-turbo.0g.ai",
+    storageExplorer: "https://storagescan-galileo.0g.ai",
+  },
+  mainnet: {
+    name: "mainnet",
+    label: "0G Mainnet",
+    chainId: 16661,
+    rpcUrl: "https://evmrpc.0g.ai",
+    explorerUrl: "https://chainscan.0g.ai",
+    storageIndexer: "https://indexer-storage-turbo.0g.ai",
+    storageExplorer: "https://storagescan.0g.ai",
+  },
+};
+
+/** The network selected by env (see precedence in the header comment). */
+export function networkName(): NetworkName {
+  const explicit = (process.env.OG_NETWORK ?? "").trim().toLowerCase();
+  if (explicit === "mainnet") return "mainnet";
+  if (explicit === "galileo" || explicit === "testnet") return "galileo";
+  if (explicit) throw new Error(`Unknown OG_NETWORK "${explicit}" — use galileo or mainnet`);
+  if ((process.env.NEXT_PUBLIC_USE_MAINNET ?? "").trim().toLowerCase() === "true") return "mainnet";
+  if ((process.env.OG_CHAIN_ID ?? "").trim() === "16661") return "mainnet";
+  return "galileo";
+}
+
+export function network(): NetworkPreset {
+  return NETWORKS[networkName()];
+}
+
+/**
+ * Env override that ignores stale leftovers: if the env value equals the OTHER
+ * network's default, treat it as unset and use the active network's preset.
+ */
+function netEnv(key: string, pick: (p: NetworkPreset) => string): string {
+  const active = network();
+  const other = NETWORKS[active.name === "mainnet" ? "galileo" : "mainnet"];
+  const v = (process.env[key] ?? "").trim();
+  if (!v || v === pick(other)) return pick(active);
+  return v;
+}
+
 export interface Deployments {
   chainId: number;
   NexusAgent: string;
@@ -76,12 +150,19 @@ export function optionalEnv(key: string): string | undefined {
 }
 
 export const config = {
-  rpcUrl: () => env("OG_RPC_URL", "https://evmrpc-testnet.0g.ai"),
-  chainId: () => Number(env("OG_CHAIN_ID", "16602")),
-  explorerUrl: () => env("OG_EXPLORER_URL", "https://chainscan-galileo.0g.ai"),
-  storageIndexer: () => env("OG_STORAGE_INDEXER", "https://indexer-storage-testnet-turbo.0g.ai"),
-  storageExplorer: () => env("OG_STORAGE_EXPLORER", "https://storagescan-galileo.0g.ai"),
-  privateKey: () => normalizeKey(env("PRIVATE_KEY")),
+  network: (): NetworkName => networkName(),
+  networkLabel: () => network().label,
+  rpcUrl: () => netEnv("OG_RPC_URL", (p) => p.rpcUrl),
+  chainId: () => Number(netEnv("OG_CHAIN_ID", (p) => String(p.chainId))),
+  explorerUrl: () => netEnv("OG_EXPLORER_URL", (p) => p.explorerUrl),
+  storageIndexer: () => netEnv("OG_STORAGE_INDEXER", (p) => p.storageIndexer),
+  storageExplorer: () => netEnv("OG_STORAGE_EXPLORER", (p) => p.storageExplorer),
+  // On mainnet, OG_MAINNET_KEY (a dedicated funded key) takes precedence so the
+  // testnet operator key in PRIVATE_KEY is never used against real funds.
+  privateKey: () =>
+    normalizeKey(
+      networkName() === "mainnet" ? (optionalEnv("OG_MAINNET_KEY") ?? env("PRIVATE_KEY")) : env("PRIVATE_KEY"),
+    ),
   signerKey: () => normalizeKey(optionalEnv("TRUSTED_SIGNER_KEY") ?? env("PRIVATE_KEY")),
   buyerKey: () => {
     const k = optionalEnv("BUYER_PRIVATE_KEY");
@@ -92,9 +173,9 @@ export const config = {
     routerUrl: () => env("OG_COMPUTE_ROUTER_URL", "https://router-api.0g.ai/v1"),
     apiKey: () => optionalEnv("OG_COMPUTE_API_KEY"),
     model: () => env("OG_COMPUTE_MODEL", "zai-org/GLM-5-FP8"),
-    // 0G Compute runs on the same Galileo testnet (chainId 16602) — default the
-    // compute RPC to the main chain RPC so one funded wallet covers everything.
-    rpcUrl: () => env("OG_COMPUTE_RPC_URL", env("OG_RPC_URL", "https://evmrpc-testnet.0g.ai")),
+    // 0G Compute broker runs on the same chain as the active network — mirror
+    // the chain RPC unless deliberately overridden.
+    rpcUrl: () => netEnv("OG_COMPUTE_RPC_URL", (p) => p.rpcUrl),
     provider: () => optionalEnv("OG_COMPUTE_PROVIDER"),
     deposit: () => Number(env("OG_COMPUTE_DEPOSIT", "0.05")),
   },
@@ -104,8 +185,25 @@ function normalizeKey(k: string): string {
   return k.startsWith("0x") ? k : `0x${k}`;
 }
 
+/**
+ * 0G public RPCs can transiently answer eth_getTransactionReceipt for a fresh
+ * tx with -32000 "no matching receipts found: this may indicate potential data
+ * corruption". ethers treats that as fatal and aborts tx.wait(). Treat it as
+ * "still pending" (null) so polling continues instead.
+ */
+class ResilientJsonRpcProvider extends JsonRpcProvider {
+  override async getTransactionReceipt(hash: string) {
+    try {
+      return await super.getTransactionReceipt(hash);
+    } catch (e) {
+      if (/no matching receipts|data corruption/i.test(String(e))) return null;
+      throw e;
+    }
+  }
+}
+
 export function getProvider(): JsonRpcProvider {
-  return new JsonRpcProvider(config.rpcUrl(), config.chainId());
+  return new ResilientJsonRpcProvider(config.rpcUrl(), config.chainId());
 }
 
 export function getWallet(privateKey?: string): Wallet {
@@ -132,43 +230,59 @@ export function storageFileUrl(rootHash: string): string {
   return `${config.storageExplorer()}/file/${rootHash}`;
 }
 
-// Build a Deployments object from env vars — the serverless fallback (Vercel),
-// where contracts/deployments/galileo.json isn't on the function's disk.
-function deploymentsFromEnv(): Deployments | null {
-  const a = optionalEnv("NEXUS_AGENT_ADDRESS");
-  const p = optionalEnv("PROOFMESH_ADDRESS");
-  const e = optionalEnv("NEXUS_ESCROW_ADDRESS");
-  const r = optionalEnv("REPUTATION_ADDRESS");
-  const c = optionalEnv("COMPOSITE_MINTER_ADDRESS");
+// Build a Deployments object from env vars — the last-resort serverless
+// fallback. Mainnet uses _MAINNET-suffixed vars so a stale testnet address can
+// never masquerade as a mainnet one (the "stale-address gotcha").
+function deploymentsFromEnv(net: NetworkName): Deployments | null {
+  const sfx = net === "mainnet" ? "_MAINNET" : "";
+  const a = optionalEnv(`NEXUS_AGENT_ADDRESS${sfx}`);
+  const p = optionalEnv(`PROOFMESH_ADDRESS${sfx}`);
+  const e = optionalEnv(`NEXUS_ESCROW_ADDRESS${sfx}`);
+  const r = optionalEnv(`REPUTATION_ADDRESS${sfx}`);
+  const c = optionalEnv(`COMPOSITE_MINTER_ADDRESS${sfx}`);
   if (!a || !p || !e || !r || !c) return null;
-  let trustedSigner = optionalEnv("TRUSTED_SIGNER_ADDRESS") ?? "";
+  let trustedSigner = optionalEnv(`TRUSTED_SIGNER_ADDRESS${sfx}`) ?? optionalEnv("TRUSTED_SIGNER_ADDRESS") ?? "";
   if (!trustedSigner) {
     try { trustedSigner = addressOf(config.signerKey()); } catch { /* leave blank */ }
   }
   return {
-    chainId: config.chainId(),
+    chainId: NETWORKS[net].chainId,
     NexusAgent: a, ProofMeshReceipts: p, NexusEscrow: e,
     ReputationRegistry: r, CompositeReceiptMinter: c, trustedSigner,
   };
 }
 
-let _deployments: Deployments | null = null;
-export function loadDeployments(): Deployments {
-  if (_deployments) return _deployments;
-  const p = resolve(REPO_ROOT, "contracts/deployments/galileo.json");
+const _deployments: Partial<Record<NetworkName, Deployments>> = {};
+
+function readDeployments(net: NetworkName): Deployments | null {
+  // 1. the deployments file written by scripts/deploy.ts (freshest, local dev)
+  const p = resolve(REPO_ROOT, `contracts/deployments/${net}.json`);
   if (existsSync(p)) {
-    _deployments = JSON.parse(readFileSync(p, "utf8")) as Deployments;
-    return _deployments;
+    try {
+      const d = JSON.parse(readFileSync(p, "utf8")) as Deployments;
+      if (d.chainId === NETWORKS[net].chainId) return d;
+      // wrong-chain file — ignore rather than serve stale addresses
+    } catch { /* fall through */ }
   }
-  const fromEnv = deploymentsFromEnv();
-  if (fromEnv) return (_deployments = fromEnv);
+  // 2. the embedded copy (survives serverless bundling)
+  const embedded = EMBEDDED_DEPLOYMENTS[net];
+  if (embedded && embedded.chainId === NETWORKS[net].chainId) return embedded;
+  // 3. env vars
+  return deploymentsFromEnv(net);
+}
+
+export function loadDeployments(net?: NetworkName): Deployments {
+  const n = net ?? networkName();
+  const cached = _deployments[n];
+  if (cached) return cached;
+  const d = readDeployments(n);
+  if (d) return (_deployments[n] = d);
   throw new Error(
-    "No deployments found. Deploy first: `pnpm deploy:testnet`, or set NEXUS_AGENT_ADDRESS / " +
-      "PROOFMESH_ADDRESS / NEXUS_ESCROW_ADDRESS / REPUTATION_ADDRESS / COMPOSITE_MINTER_ADDRESS.",
+    `No ${n} deployments found. Deploy first: \`pnpm deploy:${n === "mainnet" ? "mainnet" : "testnet"}\`, ` +
+      `or set the address env vars (see .env.example section 5).`,
   );
 }
 
-export function deploymentsExist(): boolean {
-  if (existsSync(resolve(REPO_ROOT, "contracts/deployments/galileo.json"))) return true;
-  return deploymentsFromEnv() !== null;
+export function deploymentsExist(net?: NetworkName): boolean {
+  return readDeployments(net ?? networkName()) !== null;
 }

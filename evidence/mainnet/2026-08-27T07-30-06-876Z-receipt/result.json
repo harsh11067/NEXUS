@@ -1,0 +1,31 @@
+{
+  "scenario": "receipt",
+  "network": "mainnet",
+  "chainId": 16661,
+  "explorer": "https://chainscan.0g.ai",
+  "startedAt": "2026-08-27T07:30:06.876Z",
+  "finishedAt": "2026-08-27T07:32:16.216Z",
+  "assertions": [
+    {
+      "claim": "reputation ticked up, anchored to the receipt",
+      "pass": true,
+      "detail": "0 -> 5"
+    },
+    {
+      "claim": "second mint for the same session reverts AlreadyMinted",
+      "pass": true,
+      "detail": "reverted AlreadyMinted (0xddefae28)"
+    }
+  ],
+  "agentId": "8",
+  "mintTx": "0x77a119352c8c7331c17b8aff296089a0d9f70c3e706c72641da75662af7940f6",
+  "sessionId": "0x789296c55d88a9da9947f0336b6b44cc6c780b44a4c72c620d4aa6ce9c27cab8",
+  "receiptId": "1",
+  "provider": "0xd9966e13a6026Fcca4b13E7ff95c94DE268C471C",
+  "model": "zai-org/GLM-5-FP8",
+  "teeVerified": true,
+  "traceRootHash": "0xf3f8b1f7386308fc9c610a0f0b8b1fd91c6c5b8372a8cefb41c4a38b7d26e4a6",
+  "closeTx": "0x94a7ed069eae92bae57bf3d6ce49c27eeb307bc69f5b9ad13f020a7f998d718f",
+  "receiptTx": "0xc051ce6b33b15feceffe71179a9e561d653e5bd262d6a68f988a66a7306b9a3f",
+  "receiptTxUrl": "https://chainscan.0g.ai/tx/0xc051ce6b33b15feceffe71179a9e561d653e5bd262d6a68f988a66a7306b9a3f"
+}

@@ -54,6 +54,23 @@ async function verificationBroker(): Promise<Broker> {
   return createZGComputeNetworkBroker(wallet);
 }
 
+/**
+ * Independently re-verify a past sealed-inference response against the
+ * provider's enclave signature endpoint (the ProofPass primitive). Anyone can
+ * run this with just {provider, chatID} — no NEXUS trust involved.
+ * Returns true (hardware-verified), false (verification failed), or null
+ * (the provider no longer serves the signature for this chatID).
+ */
+export async function verifyTeeResponse(provider: string, chatID: string): Promise<boolean | null> {
+  if (!provider || !chatID) return null;
+  try {
+    const broker = await verificationBroker();
+    return await broker.inference.processResponse(provider, chatID);
+  } catch {
+    return null;
+  }
+}
+
 export async function runInference(messages: ChatMessage[]): Promise<InferenceResult> {
   const mode = config.compute.mode();
   if (mode === "broker") return runBroker(messages);

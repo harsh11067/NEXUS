@@ -9,9 +9,19 @@ type Proof = {
   timestamp: number;
   agent: { id: string; owner: string; creator: string; personaRootHash: string; url: string; personaUrl: string };
   session: { id: string; traceCIDHash: string; url: string };
-  tee: { provider: string; model: string; verified: boolean | null; outputHash: string };
+  tee: { provider: string; chatID?: string; model: string; verified: boolean | null; outputHash: string };
   payment: { id: string; hasPayment: boolean; settled: boolean; url: string };
   reputation: { score: number; tier: string; taskCount: number; url: string };
+  error?: string;
+};
+
+type ProofCheck = { claim: string; status: boolean | null; detail: string; link?: string };
+type LiveVerdict = {
+  valid: boolean;
+  network: string;
+  chainId: number;
+  checks: ProofCheck[];
+  tee: { provider: string; chatID: string; model: string; anchoredVerified: boolean | null; reVerified: boolean | null };
   error?: string;
 };
 
@@ -28,12 +38,35 @@ export default function ProofPage() {
   const { id } = useParams<{ id: string }>();
   const [p, setP] = useState<Proof | null>(null);
   const [err, setErr] = useState<string | null>(null);
+  const [live, setLive] = useState<LiveVerdict | null>(null);
+  const [verifying, setVerifying] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     fetch(`/api/receipts/${id}`).then((r) => r.json()).then((d) => {
       if (d.error) setErr(d.error); else setP(d);
     }).catch((e) => setErr(String(e)));
   }, [id]);
+
+  async function reVerify() {
+    setVerifying(true);
+    setLive(null);
+    try {
+      const d = await fetch(`/api/verify/${id}`).then((r) => r.json());
+      setLive(d.error ? { valid: false, network: "", chainId: 0, checks: [], tee: { provider: "", chatID: "", model: "", anchoredVerified: null, reVerified: null }, error: d.error } : d);
+    } catch (e) {
+      setLive({ valid: false, network: "", chainId: 0, checks: [], tee: { provider: "", chatID: "", model: "", anchoredVerified: null, reVerified: null }, error: String(e) });
+    } finally {
+      setVerifying(false);
+    }
+  }
+
+  function copyBadge() {
+    const origin = typeof window !== "undefined" ? window.location.origin : "";
+    navigator.clipboard.writeText(
+      `<a href="${origin}/proof/${id}"><img src="${origin}/api/badge/${id}" alt="NEXUS-verified receipt #${id}" /></a>`,
+    ).then(() => { setCopied(true); setTimeout(() => setCopied(false), 1600); });
+  }
 
   return (
     <main style={{ minHeight: "100vh", background: C.bg, color: C.text, fontFamily: "ui-sans-serif,system-ui,Inter,sans-serif", padding: "40px 20px" }}>
@@ -79,6 +112,64 @@ export default function ProofPage() {
               <Row n={5} title="Reputation from proof" claim="The score moved only via this on-chain receipt — no reviews, no votes."
                 rows={[["tier", p.reputation.tier], ["score", String(p.reputation.score)], ["tasks", String(p.reputation.taskCount)], ["traces to", short(p.receiptHash)]]}
                 links={[["ReputationRegistry on chainscan ↗", p.reputation.url]]} />
+            </div>
+
+            {/* ProofPass — re-derive validity live, trusting no stored boolean */}
+            <div style={{ marginTop: 20, background: C.panel, border: `1px solid ${C.border}`, borderRadius: 12, padding: "18px 20px" }}>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 10 }}>
+                <div>
+                  <strong style={{ fontSize: 15 }}>ProofPass · re-verify this receipt yourself</strong>
+                  <div style={{ color: C.muted, fontSize: 13, marginTop: 3 }}>
+                    Re-derives every claim from chain, 0G Storage and the provider&apos;s enclave endpoint — nothing above is trusted, everything is re-checked.
+                  </div>
+                </div>
+                <button onClick={reVerify} disabled={verifying}
+                  style={{ background: verifying ? C.border : C.accent, color: "#04060e", border: "none", borderRadius: 8, padding: "10px 18px", fontWeight: 700, fontSize: 13, cursor: verifying ? "wait" : "pointer" }}>
+                  {verifying ? "re-deriving…" : "RE-VERIFY LIVE"}
+                </button>
+              </div>
+
+              {live && live.error && (
+                <div style={{ marginTop: 14, color: "#ff6b7a", fontSize: 13 }}>verification error: {live.error}</div>
+              )}
+              {live && !live.error && (
+                <>
+                  <div style={{ marginTop: 16, display: "flex", alignItems: "center", gap: 12 }}>
+                    <span style={{
+                      fontFamily: "monospace", fontWeight: 800, fontSize: 16, letterSpacing: ".06em",
+                      color: live.valid ? C.good : "#ff6b7a",
+                      border: `2px solid ${live.valid ? C.good : "#ff6b7a"}`, borderRadius: 8, padding: "6px 14px",
+                    }}>
+                      {live.valid ? "VALID ✓" : "INVALID ✗"}
+                    </span>
+                    <span style={{ color: C.faint, fontSize: 12, fontFamily: "monospace" }}>
+                      re-derived just now on {live.network} (chainId {live.chainId})
+                    </span>
+                  </div>
+                  <div style={{ marginTop: 14, display: "flex", flexDirection: "column", gap: 8 }}>
+                    {live.checks.map((c) => (
+                      <div key={c.claim} style={{ display: "flex", gap: 10, fontSize: 12.5, alignItems: "baseline" }}>
+                        <span style={{ fontFamily: "monospace", color: c.status === true ? C.good : c.status === false ? "#ff6b7a" : C.warn, minWidth: 18 }}>
+                          {c.status === true ? "✓" : c.status === false ? "✗" : "◌"}
+                        </span>
+                        <span style={{ color: C.text }}>{c.claim}</span>
+                        <span style={{ color: C.faint, fontFamily: "monospace", wordBreak: "break-all" }}>{c.detail}</span>
+                        {c.link && <a href={c.link} target="_blank" rel="noreferrer" style={{ color: C.accent, whiteSpace: "nowrap" }}>↗</a>}
+                      </div>
+                    ))}
+                  </div>
+                </>
+              )}
+
+              <div style={{ marginTop: 16, display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={`/api/badge/${id}`} alt={`NEXUS badge for receipt #${id}`} height={24} />
+                <button onClick={copyBadge}
+                  style={{ background: "transparent", color: C.accent, border: `1px solid ${C.border}`, borderRadius: 8, padding: "6px 12px", fontSize: 12, cursor: "pointer" }}>
+                  {copied ? "copied ✓" : "copy embed snippet"}
+                </button>
+                <span style={{ color: C.faint, fontSize: 11.5 }}>drop the badge next to this agent anywhere — it re-verifies live</span>
+              </div>
             </div>
 
             <p style={{ marginTop: 24, color: C.faint, fontSize: 12 }}>

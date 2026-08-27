@@ -1,9 +1,20 @@
 /**
- * Pull REAL on-chain proofs for the current deployment straight from the chain,
- * so PROOF.md links are always accurate (not copied from a stale handoff).
+ * gather:proofs — pull REAL on-chain proofs for a deployment straight from the
+ * chain and regenerate the evidence tables (PROOFS.md rule: never hand-type a
+ * hash). Writes docs/PROOFS.<network>.md and prints the same content.
  *
- *   npx tsx scripts/gather-proofs.ts
+ *   pnpm gather:proofs                       # active network (default galileo)
+ *   pnpm gather:proofs -- --network mainnet  # 0G mainnet
  */
+// parse --network BEFORE the SDK resolves it
+const netArgIdx = process.argv.indexOf("--network");
+if (netArgIdx !== -1 && process.argv[netArgIdx + 1]) {
+  process.env.OG_NETWORK = process.argv[netArgIdx + 1];
+}
+
+import { writeFileSync } from "node:fs";
+import { resolve, dirname } from "node:path";
+import { fileURLToPath } from "node:url";
 import {
   getProvider,
   loadDeployments,
@@ -11,10 +22,14 @@ import {
   compositeMinter,
   nexusEscrow,
   proofMesh,
+  reputationRegistry,
   explorerTx,
   explorerAddress,
   config,
+  networkName,
 } from "@nexus/sdk";
+
+const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 
 type Hit = { label: string; txHash: string; block: number; extra?: string };
 
@@ -32,7 +47,7 @@ async function logsFor(
     try {
       const logs = await provider.getLogs({ address, topics: [topic0], fromBlock: start, toBlock: end });
       for (const l of logs) out.push({ txHash: l.transactionHash, blockNumber: l.blockNumber, topics: l.topics, data: l.data });
-    } catch (e) {
+    } catch {
       // shrink the window on range errors
       const mid = Math.floor((start + end) / 2);
       try {
@@ -46,23 +61,23 @@ async function logsFor(
 }
 
 async function main() {
+  const net = networkName();
   const d = loadDeployments();
   const provider = getProvider();
   const head = await provider.getBlockNumber();
   // contracts are recent; scan a generous window back from head
   const from = Math.max(0, head - 300000);
-  console.log(`# scanning blocks ${from} … ${head} on chain ${config.chainId()}\n`);
+  console.log(`# scanning blocks ${from} … ${head} on ${net} (chain ${config.chainId()})\n`);
 
   const agent = nexusAgent(provider);
   const minter = compositeMinter(provider);
   const escrow = nexusEscrow(provider);
   const proof = proofMesh(provider);
+  const rep = reputationRegistry(provider);
 
   const sig = (c: any, name: string) => c.interface.getEvent(name)!.topicHash;
-
   const sections: { title: string; hits: Hit[] }[] = [];
 
-  // --- mints ---
   const mintLogs = await logsFor(d.NexusAgent, sig(agent, "AgentMinted"), from, head);
   sections.push({
     title: "ERC-7857 agent mints (AgentMinted)",
@@ -72,7 +87,6 @@ async function main() {
     }),
   });
 
-  // --- clones ---
   const cloneLogs = await logsFor(d.NexusAgent, sig(agent, "AgentCloned"), from, head);
   sections.push({
     title: "Clones with royalty (AgentCloned)",
@@ -82,7 +96,6 @@ async function main() {
     }),
   });
 
-  // --- transfers (re-encryption finalize) ---
   const xferLogs = await logsFor(d.NexusAgent, sig(agent, "AgentTransferred"), from, head);
   sections.push({
     title: "Ownership transfers via re-encryption (AgentTransferred)",
@@ -92,14 +105,12 @@ async function main() {
     }),
   });
 
-  // --- sessions ---
-  const openLogs = await logsFor(d.ProofMeshReceipts, sig(proof, "SessionClosed"), from, head);
+  const closeLogs = await logsFor(d.ProofMeshReceipts, sig(proof, "SessionClosed"), from, head);
   sections.push({
     title: "Proof sessions closed with trace + TEE attestation (SessionClosed)",
-    hits: openLogs.map((l) => ({ label: `session closed`, txHash: l.txHash, block: l.blockNumber })),
+    hits: closeLogs.map((l) => ({ label: `session closed`, txHash: l.txHash, block: l.blockNumber })),
   });
 
-  // --- composite receipts ---
   const recLogs = await logsFor(d.CompositeReceiptMinter, sig(minter, "CompositeReceiptMinted"), from, head);
   sections.push({
     title: "Composite receipts (CompositeReceiptMinted)",
@@ -109,43 +120,69 @@ async function main() {
     }),
   });
 
-  // --- escrow lock/settle ---
   const lockLogs = await logsFor(d.NexusEscrow, sig(escrow, "FundsLocked"), from, head);
   sections.push({
     title: "Escrow funds locked (FundsLocked)",
     hits: lockLogs.map((l) => ({ label: `payment locked`, txHash: l.txHash, block: l.blockNumber })),
   });
+
   const settleLogs = await logsFor(d.NexusEscrow, sig(escrow, "PaymentSettled"), from, head);
   sections.push({
     title: "Escrow settled to merchant (PaymentSettled)",
     hits: settleLogs.map((l) => ({ label: `payment settled`, txHash: l.txHash, block: l.blockNumber })),
   });
 
-  // --- reputation ---
-  const scoreLogs = await logsFor(d.ReputationRegistry, sig(reputationSig(), "ScoreUpdated"), from, head).catch(() => []);
+  const refundLogs = await logsFor(d.NexusEscrow, sig(escrow, "PaymentRefunded"), from, head);
+  sections.push({
+    title: "Escrow TTL refunds — funds never lock (PaymentRefunded)",
+    hits: refundLogs.map((l) => ({ label: `payment refunded`, txHash: l.txHash, block: l.blockNumber })),
+  });
 
-  // emit
+  const scoreLogs = await logsFor(d.ReputationRegistry, sig(rep, "ScoreUpdated"), from, head);
+  sections.push({
+    title: "Proof-anchored reputation writes (ScoreUpdated, each carries a receiptHash)",
+    hits: scoreLogs.map((l) => {
+      const p = rep.interface.parseLog(l)!;
+      return { label: `agent #${p.args.agentId} → score ${p.args.newScore}`, txHash: l.txHash, block: l.blockNumber, extra: `receipt ${String(p.args.receiptHash).slice(0, 18)}…` };
+    }),
+  });
+
+  // ---- emit markdown (generated, never hand-typed) ----
   const lines: string[] = [];
-  lines.push("CONTRACTS:");
+  lines.push(`# NEXUS live proofs — ${net} (chainId ${config.chainId()})`);
+  lines.push("");
+  lines.push(`> AUTO-GENERATED by \`pnpm gather:proofs -- --network ${net}\` at ${new Date().toISOString()}.`);
+  lines.push(`> Every hash below was read from the live chain (blocks ${from}…${head}). Do not edit by hand.`);
+  lines.push("");
+  lines.push("## Deployed contracts");
+  lines.push("");
+  lines.push("| Contract | Address | Explorer |");
+  lines.push("| --- | --- | --- |");
   for (const [k, v] of Object.entries(d)) {
     if (typeof v === "string" && v.startsWith("0x") && v.length === 42) {
-      lines.push(`  ${k}: ${v}  ${explorerAddress(v)}`);
+      lines.push(`| ${k} | \`${v}\` | [chainscan](${explorerAddress(v)}) |`);
     }
   }
   lines.push("");
   for (const s of sections) {
-    lines.push(`## ${s.title}  (${s.hits.length})`);
-    for (const h of s.hits) {
-      lines.push(`  - ${h.label}${h.extra ? "  " + h.extra : ""}  blk ${h.block}`);
-      lines.push(`    ${explorerTx(h.txHash)}`);
+    lines.push(`## ${s.title}  — ${s.hits.length}`);
+    lines.push("");
+    if (s.hits.length === 0) {
+      lines.push("_none in scan window_");
+    } else {
+      lines.push("| What | Block | Tx |");
+      lines.push("| --- | --- | --- |");
+      for (const h of s.hits) {
+        lines.push(`| ${h.label}${h.extra ? ` (${h.extra})` : ""} | ${h.block} | [${h.txHash.slice(0, 14)}…](${explorerTx(h.txHash)}) |`);
+      }
     }
     lines.push("");
   }
-  console.log(lines.join("\n"));
+  const md = lines.join("\n");
+  const outPath = resolve(ROOT, `docs/PROOFS.${net}.md`);
+  writeFileSync(outPath, md);
+  console.log(md);
+  console.log(`\n# written to docs/PROOFS.${net}.md`);
 }
-
-// ReputationRegistry contract handle for its event signature
-import { reputationRegistry } from "@nexus/sdk";
-function reputationSig() { return reputationRegistry(getProvider()); }
 
 main().catch((e) => { console.error(e); process.exit(1); });
