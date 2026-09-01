@@ -36,7 +36,8 @@ export async function systemStatus() {
     const bal = await getProvider().getBalance(wallet.address);
     out.balance = formatEther(bal);
   } catch (e: any) {
-    out.error = "PRIVATE_KEY not set — fill .env (see .env.example)";
+    out.readOnly = true;
+    out.error = e?.message ?? "Operator key not configured — read-only mode";
   }
   if (out.deployed) out.addresses = loadDeployments();
   return out;

@@ -157,12 +157,22 @@ export const config = {
   explorerUrl: () => netEnv("OG_EXPLORER_URL", (p) => p.explorerUrl),
   storageIndexer: () => netEnv("OG_STORAGE_INDEXER", (p) => p.storageIndexer),
   storageExplorer: () => netEnv("OG_STORAGE_EXPLORER", (p) => p.storageExplorer),
-  // On mainnet, OG_MAINNET_KEY (a dedicated funded key) takes precedence so the
-  // testnet operator key in PRIVATE_KEY is never used against real funds.
-  privateKey: () =>
-    normalizeKey(
-      networkName() === "mainnet" ? (optionalEnv("OG_MAINNET_KEY") ?? env("PRIVATE_KEY")) : env("PRIVATE_KEY"),
-    ),
+  // On mainnet the operator key MUST be OG_MAINNET_KEY — never fall back to the
+  // testnet PRIVATE_KEY against real funds. Absent key => read-only mode.
+  privateKey: () => {
+    if (networkName() === "mainnet") {
+      const k = optionalEnv("OG_MAINNET_KEY");
+      if (!k) {
+        throw new Error(
+          "Mainnet operator key not configured (OG_MAINNET_KEY). This deployment is read-only for mainnet writes.",
+        );
+      }
+      return normalizeKey(k);
+    }
+    return normalizeKey(env("PRIVATE_KEY"));
+  },
+  hasOperatorKey: (): boolean =>
+    networkName() === "mainnet" ? !!optionalEnv("OG_MAINNET_KEY") : !!optionalEnv("PRIVATE_KEY"),
   signerKey: () => normalizeKey(optionalEnv("TRUSTED_SIGNER_KEY") ?? env("PRIVATE_KEY")),
   buyerKey: () => {
     const k = optionalEnv("BUYER_PRIVATE_KEY");
