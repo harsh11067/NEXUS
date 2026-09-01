@@ -4,8 +4,8 @@
  * + cipherRef on chain.
  * Pass condition: agentId returned; ownerOf == you; getPersonaRef resolves.
  */
-import { createAgent, nexusAgent, getWallet, explorerTx, explorerAddress, bytesToRootHash } from "@nexus/sdk";
-import type { AgentPersona } from "@nexus/sdk";
+import { createAgent, nexusAgent, getWallet, explorerTx, explorerAddress, bytesToRootHash } from "0g-nexus-sdk";
+import type { AgentPersona } from "0g-nexus-sdk";
 import { banner, ok, info, fail, preflight } from "./_common.js";
 
 const SAMPLE: AgentPersona = {

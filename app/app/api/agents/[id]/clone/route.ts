@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { cloneAgent, getWallet, pubKeyOf } from "@nexus/sdk";
+import { cloneAgent, getWallet, pubKeyOf } from "0g-nexus-sdk";
 import { Wallet } from "ethers";
 
 export const runtime = "nodejs";

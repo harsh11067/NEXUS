@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { runTask, getWallet } from "@nexus/sdk";
+import { runTask, getWallet } from "0g-nexus-sdk";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";

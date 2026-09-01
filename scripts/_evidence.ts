@@ -9,7 +9,7 @@ import { mkdirSync, writeFileSync, existsSync } from "node:fs";
 import { resolve, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { id } from "ethers";
-import { networkName, config } from "@nexus/sdk";
+import { networkName, config } from "0g-nexus-sdk";
 import { ok } from "./_common.js";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");

@@ -32,7 +32,7 @@ What NEXUS does today (shipped + on-chain), what Wave 3 adds, and the ambitious 
 
 ## C. Platform features (the SaaS turn — post-buildathon, high ambition)
 
-13. **NEXUS SDK (`@nexus/sdk`, npm)** — `createAgent`, `runTask`, `getReceiptProof`, `transferAgent`, `cloneAgent`, `verifyReceipt`. Lets any builder integrate verifiable agent trust without touching 0G plumbing. Publishing it is the platform-intent signal the winning projects used.
+13. **NEXUS SDK (`0g-nexus-sdk`, npm)** — `createAgent`, `runTask`, `getReceiptProof`, `transferAgent`, `cloneAgent`, `verifyReceipt`. Lets any builder integrate verifiable agent trust without touching 0G plumbing. Publishing it is the platform-intent signal the winning projects used.
 14. **ProofPass API + embeddable badge** — a hosted `verify(receiptId) → {owner, model, policy, payment, repDelta, valid}` endpoint and a drop-in "NEXUS-verified ✓" badge any marketplace/host/DAO can embed. One-click proof next to any agent, anywhere.
 15. **Agent Passport** — a portable, cross-platform identity: token + proof history + reputation, verifiable off any platform. Agents carry their track record with them; the passport gets more valuable the longer it runs verifiably (the moat).
 16. **Reputation explorer** — a public, searchable view of agents ranked by proof-backed reputation, each score drilling into its receipts.

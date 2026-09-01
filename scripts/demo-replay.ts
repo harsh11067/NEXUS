@@ -7,7 +7,7 @@
  *
  *   pnpm demo:replay [receiptId]
  */
-import { replayReceipt, networkName } from "@nexus/sdk";
+import { replayReceipt, networkName } from "0g-nexus-sdk";
 import { banner, ok, info, fail, preflight } from "./_common.js";
 import { Evidence } from "./_evidence.js";
 

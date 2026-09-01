@@ -17,7 +17,7 @@ importers:
 
   app:
     dependencies:
-      '@nexus/sdk':
+      0g-nexus-sdk:
         specifier: workspace:*
         version: link:../packages/sdk
       '@types/qrcode':
@@ -82,7 +82,7 @@ importers:
 
   scripts:
     dependencies:
-      '@nexus/sdk':
+      0g-nexus-sdk:
         specifier: workspace:*
         version: link:../packages/sdk
       ethers:

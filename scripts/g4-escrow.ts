@@ -4,8 +4,8 @@
  * with funds released to a distinct merchant.
  */
 import { Wallet, parseEther, randomBytes, hexlify, toUtf8Bytes } from "ethers";
-import { createAgent, nexusEscrow, getWallet, explorerTx } from "@nexus/sdk";
-import type { AgentPersona } from "@nexus/sdk";
+import { createAgent, nexusEscrow, getWallet, explorerTx } from "0g-nexus-sdk";
+import type { AgentPersona } from "0g-nexus-sdk";
 import { banner, ok, info, fail, preflight } from "./_common.js";
 
 const PERSONA: AgentPersona = {

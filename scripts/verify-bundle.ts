@@ -9,7 +9,7 @@
  * for you to spot-check on any explorer.
  */
 import { readFileSync } from "node:fs";
-import { verifyProofBundleOffline, verifyProofBundleOnline, type ProofBundleFile } from "@nexus/sdk";
+import { verifyProofBundleOffline, verifyProofBundleOnline, type ProofBundleFile } from "0g-nexus-sdk";
 import { banner, ok, info, fail } from "./_common.js";
 
 async function main() {

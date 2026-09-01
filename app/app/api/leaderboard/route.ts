@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getLeaderboard, config, network } from "@nexus/sdk";
+import { getLeaderboard, config, network } from "0g-nexus-sdk";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";

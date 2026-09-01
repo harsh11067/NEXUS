@@ -4,8 +4,8 @@
  * (fetch persona -> Sealed Inference -> signed output + attestation). No proof
  * loop, no escrow. This is the Level 1 definition-of-done from the CLI.
  */
-import { createAgent, runTask, getWallet } from "@nexus/sdk";
-import type { AgentPersona } from "@nexus/sdk";
+import { createAgent, runTask, getWallet } from "0g-nexus-sdk";
+import type { AgentPersona } from "0g-nexus-sdk";
 import { banner, ok, info, fail, preflight } from "./_common.js";
 
 const PERSONA: AgentPersona = {

@@ -23,7 +23,7 @@ offline bundles are proven on 0G mainnet (see `NEXUS_UP/PLAN_NEXT.md` STATUS,
   agent (#381), portable reputation, deterministic replay, offline bundle. No faucet
   top-up needed any more.
 
-## 1. Publish `@nexus/sdk` to npm (platform-intent signal, FEATURES.md #13)
+## 1. Publish `0g-nexus-sdk` to npm (platform-intent signal, FEATURES.md #13)
 Needs your npm account: `cd packages/sdk && npm publish --access public` (pick the
 scope/name you own). Everything judges need works without it.
 

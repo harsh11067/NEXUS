@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { finalizeTransferFor } from "@nexus/sdk";
+import { finalizeTransferFor } from "0g-nexus-sdk";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";

@@ -1,4 +1,4 @@
-import { verifyReceipt } from "@nexus/sdk";
+import { verifyReceipt } from "0g-nexus-sdk";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";

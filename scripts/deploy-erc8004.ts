@@ -14,7 +14,7 @@ import { readFileSync, writeFileSync, existsSync } from "node:fs";
 import { resolve, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { ContractFactory, computeAddress, formatEther, parseEther } from "ethers";
-import { getProvider, getWallet, config, networkName, NETWORKS } from "@nexus/sdk";
+import { getProvider, getWallet, config, networkName, NETWORKS } from "0g-nexus-sdk";
 import { banner, ok, info, fail } from "./_common.js";
 import { regenerateEmbedded } from "./_regen.js";
 

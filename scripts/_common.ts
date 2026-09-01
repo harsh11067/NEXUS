@@ -1,4 +1,4 @@
-import { getProvider, getWallet, config, deploymentsExist, explorerAddress } from "@nexus/sdk";
+import { getProvider, getWallet, config, deploymentsExist, explorerAddress } from "0g-nexus-sdk";
 import { formatEther } from "ethers";
 
 export function banner(title: string) {

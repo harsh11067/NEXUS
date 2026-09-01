@@ -116,7 +116,7 @@ Priorities: ✅ blocks Wave 3 · 🟡 should pass · 🔵 stretch. The mock-vs-r
 | L-08 | Security pass: reentrancy, access-control, signature-replay, integer (Slither + manual) | clean | ✅ |
 | L-09 | Secrets hygiene: no private keys in browser bundle or logs | verified (grep + build audit) | ✅ |
 | L-10 | Instrumentation: agents created, runs verified, transfers, hires, DAU tracked | live dashboard | ✅ |
-| L-11 | SDK smoke: `@nexus/sdk` consumer app runs the full loop independently | green | 🟡 |
+| L-11 | SDK smoke: `0g-nexus-sdk` consumer app runs the full loop independently | green | 🟡 |
 
 ## Definition of done — Wave 3
 Tier 1 all green (≥ 39 + new) · Tier 2 R-01…R-07, S-01…S-05, T-01…T-07 on **mainnet** · Tier 3 E-01…E-07 · Tier 4 A-01…A-08. Tier 5 substantially green for the "real product" claim.

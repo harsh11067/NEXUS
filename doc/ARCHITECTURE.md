@@ -35,7 +35,7 @@ quote verification). Fulfillment verification is **structural/schema**, not sema
                           └─────────────────────────────────┼────────────┘
                                                             │ wraps
                                                   ┌─────────▼──────────┐
-                                                  │     @nexus/sdk     │
+                                                  │     0g-nexus-sdk     │
                                                   │ crypto · storage · │
                                                   │ inference · runtime│
                                                   │ · contracts        │
@@ -172,7 +172,7 @@ root) — `pnpm verify:bundle <file>`.
 | Path | What |
 |---|---|
 | `contracts/` | Foundry — 7 contracts, tests (**51/51**), `deployments/{galileo,mainnet}.json` |
-| `packages/sdk/` | `@nexus/sdk` — crypto · storage · inference · runtime · verify · erc8004 · replay · bundle · leaderboard |
+| `packages/sdk/` | `0g-nexus-sdk` — crypto · storage · inference · runtime · verify · erc8004 · replay · bundle · leaderboard |
 | `app/` | Next.js — `/api/*` backend, `/console`, `/proof/[id]`, `/agent/[id]`, `/leaderboard`, `/d/[...slug]` |
 | `NEXUS_UI/` | Cinematic Three.js districts + `nexus-api.js` (the browser ↔ chain bridge + viem wallet) |
 | `scripts/` | gate-checks G1–G4 · demo:* (12 scenarios) · `deploy.ts` · `deploy-erc8004.ts` · `gather-proofs.ts` · `verify-proofs.ts` · `verify-bundle.ts` |

@@ -4,7 +4,7 @@
  * Pass condition: bytes match; storage explorer link printed.
  */
 import { randomBytes } from "node:crypto";
-import { uploadBytes, downloadBytes, storageFileUrl } from "@nexus/sdk";
+import { uploadBytes, downloadBytes, storageFileUrl } from "0g-nexus-sdk";
 import { banner, ok, info, fail, preflight } from "./_common.js";
 
 async function main() {

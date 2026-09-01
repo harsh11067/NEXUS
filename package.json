@@ -7,6 +7,7 @@
     "build:contracts": "cd contracts && forge build",
     "test:contracts": "cd contracts && forge test -vv",
     "gen:abis": "node packages/sdk/scripts/extract-abis.mjs",
+    "build:sdk": "pnpm --filter 0g-nexus-sdk build",
     "deploy:testnet": "OG_NETWORK=galileo tsx scripts/deploy.ts && pnpm gen:abis",
     "deploy:mainnet": "OG_NETWORK=mainnet tsx scripts/deploy.ts && pnpm gen:abis",
     "gate:all": "pnpm gate:g3 && pnpm gate:g2 && pnpm gate:g1 && pnpm gate:g4",

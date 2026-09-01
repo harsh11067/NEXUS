@@ -11,7 +11,7 @@ import {
   getAgentCard,
   tierName,
   optionalEnv,
-} from "@nexus/sdk";
+} from "0g-nexus-sdk";
 import { formatEther } from "ethers";
 
 export async function systemStatus() {

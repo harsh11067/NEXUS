@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { replayReceipt, config } from "@nexus/sdk";
+import { replayReceipt, config } from "0g-nexus-sdk";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";

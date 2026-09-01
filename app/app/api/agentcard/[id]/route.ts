@@ -10,7 +10,7 @@ import {
   config,
   explorerAddress,
   loadDeployments,
-} from "@nexus/sdk";
+} from "0g-nexus-sdk";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";

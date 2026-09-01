@@ -194,7 +194,7 @@ pnpm verify:bundle <file>         # air-gapped verification of any exported bund
 ## Architecture (one screen)
 
 ```
-Browser (MetaMask) ─► Next.js app (one origin) ─► @nexus/sdk ─► 0G Chain · 0G Storage · 0G Sealed Inference
+Browser (MetaMask) ─► Next.js app (one origin) ─► 0g-nexus-sdk ─► 0G Chain · 0G Storage · 0G Sealed Inference
    /d/*  districts        /api/* real backend       crypto·storage         5 contracts · encrypted brains · TEE
    /console dashboard      /proof/[id] proof page    inference·runtime
 ```

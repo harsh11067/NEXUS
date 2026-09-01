@@ -27,7 +27,7 @@ import {
   explorerAddress,
   config,
   networkName,
-} from "@nexus/sdk";
+} from "0g-nexus-sdk";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 
@@ -171,7 +171,7 @@ async function main() {
 
   // ---- ERC-8004 layer (when deployed on this network) ----
   if (d.ERC8004ValidationRegistry && d.NexusTEEValidator) {
-    const { erc8004Validation, nexusTeeValidator } = await import("@nexus/sdk");
+    const { erc8004Validation, nexusTeeValidator } = await import("0g-nexus-sdk");
     const vreg = erc8004Validation(provider);
     const vali = nexusTeeValidator(provider);
 

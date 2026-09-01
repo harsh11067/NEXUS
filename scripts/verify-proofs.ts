@@ -13,7 +13,7 @@
 import { readFileSync, readdirSync, existsSync } from "node:fs";
 import { resolve, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
-import { getProvider, downloadBytes, networkName } from "@nexus/sdk";
+import { getProvider, downloadBytes, networkName } from "0g-nexus-sdk";
 import { banner, ok, info, fail } from "./_common.js";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");

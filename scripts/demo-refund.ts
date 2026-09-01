@@ -7,8 +7,8 @@
  *   OG_NETWORK=mainnet pnpm demo:refund
  */
 import { Wallet, parseEther, randomBytes, hexlify } from "ethers";
-import { createAgent, nexusEscrow, getWallet, explorerTx, networkName } from "@nexus/sdk";
-import type { AgentPersona } from "@nexus/sdk";
+import { createAgent, nexusEscrow, getWallet, explorerTx, networkName } from "0g-nexus-sdk";
+import type { AgentPersona } from "0g-nexus-sdk";
 import { banner, ok, info, fail, preflight } from "./_common.js";
 import { Evidence } from "./_evidence.js";
 

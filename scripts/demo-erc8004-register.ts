@@ -16,7 +16,7 @@ import {
   network,
   explorerTx,
   explorerAddress,
-} from "@nexus/sdk";
+} from "0g-nexus-sdk";
 import { banner, ok, info, fail, preflight } from "./_common.js";
 import { Evidence } from "./_evidence.js";
 

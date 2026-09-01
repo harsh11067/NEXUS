@@ -43,8 +43,8 @@ Operator wallet (server signer, funded ≥3.2 0G): `0x2f737521b9b59c202e7d33509C
 **Reputation formula:** base 1000; −50/violation, −100/dispute lost, −200/fraud, −10/failed, +5/success, +20/merchant-positive. Tiers: Unverified · Emerging 0–200 · Trusted 200–500 · Verified 500–800 · Elite 800–1000 · Flagged <0 · Banned <−500.
 
 ## STACK / REPO
-- **Next.js single process** on `localhost:3000`: `/d/*` cinematic Three.js "districts", `/console` operator dashboard, `/api/*` real backend wrapping `@nexus/sdk`. One origin; server holds operator key and signs.
-- `@nexus/sdk`: crypto · storage · inference · runtime · contracts.
+- **Next.js single process** on `localhost:3000`: `/d/*` cinematic Three.js "districts", `/console` operator dashboard, `/api/*` real backend wrapping `0g-nexus-sdk`. One origin; server holds operator key and signs.
+- `0g-nexus-sdk`: crypto · storage · inference · runtime · contracts.
 - **Crypto:** persona (systemPrompt+memory+policy) → serialize → **AES-256-GCM** content key → content key **ECIES-wrapped to owner AND re-encryption oracle** → upload 0G Storage → `mint(cipherRef, policyHash, owner, pubkey)`. Transfer/clone re-wrap content key for new holder w/o exposing plaintext → "seller provably loses access" (verified end-to-end).
 - Repo: `contracts/` (Foundry, 5 contracts+tests+deploy), `packages/sdk/`, `scripts/` (gate-checks G1–G4, level demos, deploy.ts, serve-ui.mjs), `app/` (Next.js), `NEXUS_UI/` (districts + nexus-api.js + 3D engine).
 - API: `GET /api/status|network|agents|agents/:id|receipts`; `POST /api/agents` (create+mint), `/api/agents/:id/run` ({prompt,prove}), `/api/agents/:id/clone`, `/api/agents/:id/transfer`.

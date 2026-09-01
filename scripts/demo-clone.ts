@@ -19,8 +19,8 @@ import {
   downloadBytes,
   networkName,
   config,
-} from "@nexus/sdk";
-import type { AgentPersona } from "@nexus/sdk";
+} from "0g-nexus-sdk";
+import type { AgentPersona } from "0g-nexus-sdk";
 import { banner, ok, info, fail, preflight } from "./_common.js";
 import { Evidence } from "./_evidence.js";
 

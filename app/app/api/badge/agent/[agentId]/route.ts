@@ -1,4 +1,4 @@
-import { getAgentCard, findIdentity } from "@nexus/sdk";
+import { getAgentCard, findIdentity } from "0g-nexus-sdk";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";

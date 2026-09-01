@@ -7,7 +7,7 @@
  *   OG_NETWORK=mainnet pnpm demo:rep
  */
 import { keccak256, toUtf8Bytes } from "ethers";
-import { reputationRegistry, loadDeployments, getWallet, getProvider, networkName, explorerTx } from "@nexus/sdk";
+import { reputationRegistry, loadDeployments, getWallet, getProvider, networkName, explorerTx } from "0g-nexus-sdk";
 import { banner, ok, info, fail, preflight } from "./_common.js";
 import { Evidence } from "./_evidence.js";
 

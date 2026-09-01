@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { createAgent, getWallet, type AgentPersona } from "@nexus/sdk";
+import { createAgent, getWallet, type AgentPersona } from "0g-nexus-sdk";
 import { listAgents } from "../../lib/server";
 
 export const runtime = "nodejs";

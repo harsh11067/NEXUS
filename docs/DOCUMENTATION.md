@@ -18,12 +18,12 @@ Status: **~70% of the NEXUS_IDEA brought to working, on-chain reality.**
 │   /                → redirects into the World district                        │
 │   /d/*             → serves the cinematic NEXUS_UI districts (Three.js)       │
 │   /console         → plain operator dashboard (create/run/cards)              │
-│   /api/*           → the real backend, wrapping @nexus/sdk                    │
+│   /api/*           → the real backend, wrapping 0g-nexus-sdk                    │
 │                                                                               │
 │   districts ── window.NexusAPI (NEXUS_UI/nexus-api.js) ──► /api/* ──► chain   │
 └───────────────────────────────────────────────────────────────────────────────┘
                                   │
-                  @nexus/sdk (crypto · storage · inference · runtime · contracts)
+                  0g-nexus-sdk (crypto · storage · inference · runtime · contracts)
                                   │
         0G Galileo testnet (chainId 16602): Chain · Storage · Compute(TEE)
 ```

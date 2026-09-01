@@ -22,11 +22,9 @@ import { JsonRpcProvider, Wallet } from "ethers";
 import { pubKeyOf, addressOf } from "./crypto.js";
 import { EMBEDDED_DEPLOYMENTS } from "./deployments.generated.js";
 
-// Resolve the repo root robustly: walk up from cwd looking for the workspace
-// marker (works under tsx AND when this package is bundled by Next.js, where
-// import.meta.url no longer points at the original file). Fall back to the
-// source-relative path.
-function findRepoRoot(): string {
+// The monorepo root, when running inside it (nothing above node_modules for an
+// installed copy — there the embedded deployments are the source of truth).
+function findRepoRoot(): string | undefined {
   let dir = process.cwd();
   for (let i = 0; i < 8; i++) {
     if (existsSync(resolve(dir, "pnpm-workspace.yaml")) && existsSync(resolve(dir, "contracts"))) {
@@ -36,19 +34,48 @@ function findRepoRoot(): string {
     if (parent === dir) break;
     dir = parent;
   }
-  try {
-    return resolve(dirname(fileURLToPath(import.meta.url)), "../../..");
-  } catch {
-    return process.cwd();
-  }
+  return undefined;
 }
 
 const REPO_ROOT = findRepoRoot();
 
+// Locate the file the process should read env defaults from.
+//
+// Two consumers, one rule — walk up from cwd:
+//   * inside this monorepo, the workspace marker pins the repo root, so any
+//     script run from a nested package still sees the root `.env`;
+//   * installed from npm, there is no marker, so the nearest `.env` above cwd
+//     wins — the consuming project's own file, never one inside node_modules.
+// `import.meta.url` is only a last resort: Next.js bundling rewrites it, and in
+// an installed copy it points inside node_modules.
+// Set NEXUS_NO_DOTENV=1 to skip file loading entirely (real env vars only).
+function findEnvFile(): string | undefined {
+  let dir = process.cwd();
+  let nearestEnv: string | undefined;
+  for (let i = 0; i < 8; i++) {
+    if (existsSync(resolve(dir, "pnpm-workspace.yaml")) && existsSync(resolve(dir, "contracts"))) {
+      const rootEnv = resolve(dir, ".env");
+      return existsSync(rootEnv) ? rootEnv : undefined;
+    }
+    if (!nearestEnv && existsSync(resolve(dir, ".env"))) nearestEnv = resolve(dir, ".env");
+    const parent = dirname(dir);
+    if (parent === dir) break;
+    dir = parent;
+  }
+  if (nearestEnv) return nearestEnv;
+  try {
+    const fallback = resolve(dirname(fileURLToPath(import.meta.url)), "../../..", ".env");
+    return existsSync(fallback) ? fallback : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
 // minimal .env loader (no dependency): only sets keys not already in process.env
 function loadDotEnv() {
-  const envPath = resolve(REPO_ROOT, ".env");
-  if (!existsSync(envPath)) return;
+  if ((process.env.NEXUS_NO_DOTENV ?? "").trim() === "1") return;
+  const envPath = findEnvFile();
+  if (!envPath) return;
   for (const line of readFileSync(envPath, "utf8").split("\n")) {
     const t = line.trim();
     if (!t || t.startsWith("#")) continue;
@@ -285,9 +312,10 @@ function deploymentsFromEnv(net: NetworkName): Deployments | null {
 const _deployments: Partial<Record<NetworkName, Deployments>> = {};
 
 function readDeployments(net: NetworkName): Deployments | null {
-  // 1. the deployments file written by scripts/deploy.ts (freshest, local dev)
-  const p = resolve(REPO_ROOT, `contracts/deployments/${net}.json`);
-  if (existsSync(p)) {
+  // 1. the deployments file written by scripts/deploy.ts (freshest, local dev;
+  //    absent when the SDK is installed from npm — the embedded copy wins there)
+  const p = REPO_ROOT ? resolve(REPO_ROOT, `contracts/deployments/${net}.json`) : undefined;
+  if (p && existsSync(p)) {
     try {
       const d = JSON.parse(readFileSync(p, "utf8")) as Deployments;
       if (d.chainId === NETWORKS[net].chainId) return d;

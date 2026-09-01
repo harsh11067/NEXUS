@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { prepareMint, type AgentPersona } from "@nexus/sdk";
+import { prepareMint, type AgentPersona } from "0g-nexus-sdk";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";

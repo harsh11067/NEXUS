@@ -11,8 +11,8 @@
  *   pnpm demo:receipt
  *   OG_NETWORK=mainnet pnpm demo:receipt
  */
-import { createAgent, runTask, compositeMinter, reputationRegistry, getWallet, networkName, explorerTx } from "@nexus/sdk";
-import type { AgentPersona } from "@nexus/sdk";
+import { createAgent, runTask, compositeMinter, reputationRegistry, getWallet, networkName, explorerTx } from "0g-nexus-sdk";
+import type { AgentPersona } from "0g-nexus-sdk";
 import { banner, ok, info, fail, preflight } from "./_common.js";
 import { Evidence } from "./_evidence.js";
 

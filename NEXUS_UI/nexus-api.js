@@ -1,5 +1,5 @@
 /* NEXUS shared API client — the one bridge between the cinematic districts and
-   the real on-chain backend (the Next.js API that wraps @nexus/sdk).
+   the real on-chain backend (the Next.js API that wraps 0g-nexus-sdk).
 
    Every district loads this in <helmet> (like nexus-district.js) and talks to
    the chain through window.NexusAPI. It NEVER changes the visual experience —

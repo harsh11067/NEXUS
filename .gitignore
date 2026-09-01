@@ -24,3 +24,4 @@ deployments/*.local.json
 
 # vercel
 .vercel
+*.tgz

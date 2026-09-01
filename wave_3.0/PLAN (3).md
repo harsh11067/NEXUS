@@ -58,7 +58,7 @@ Rubric mapping — Mainnet Integration Depth **50%** · Technical Quality **30%*
 NEXUS is not a demo genre — it's **"Stripe-for-agent-trust": the verification and reputation layer every agent platform needs but none wants to build.** The company arc:
 
 ### 3.1 Product surface → platform
-- **NEXUS SDK (npm).** Publish `@nexus/sdk` (`createAgent`, `runTask`, `getReceiptProof`, `transferAgent`, `cloneAgent`, `verifyReceipt`). This is how other builders integrate trust without touching 0G plumbing — the 0G-Forge/AgentAllowance "publish an SDK" signal, but for verifiable agent identity.
+- **NEXUS SDK (npm).** Publish `0g-nexus-sdk` (`createAgent`, `runTask`, `getReceiptProof`, `transferAgent`, `cloneAgent`, `verifyReceipt`). This is how other builders integrate trust without touching 0G plumbing — the 0G-Forge/AgentAllowance "publish an SDK" signal, but for verifiable agent identity.
 - **ProofPass API.** A hosted `verify(receiptId) → {owner, model, policy, payment, repDelta, valid}` endpoint + an embeddable badge. Any marketplace, agent host, or DAO can drop a "NEXUS-verified" badge next to an agent and let users check the proof in one click.
 - **Agent Passport.** A portable, cross-platform identity: an agent's ERC-7857 token + its proof history + reputation, verifiable anywhere. Agents carry their track record between platforms.
 

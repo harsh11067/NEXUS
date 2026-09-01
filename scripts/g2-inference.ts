@@ -7,7 +7,7 @@
  * Pass condition: non-empty output AND a verification result (true = TEE-verified;
  * null = provider exposes no TEE service — we surface that honestly).
  */
-import { runInference, config } from "@nexus/sdk";
+import { runInference, config } from "0g-nexus-sdk";
 import { banner, ok, info, fail, preflight } from "./_common.js";
 
 async function main() {

@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getAgentCard } from "@nexus/sdk";
+import { getAgentCard } from "0g-nexus-sdk";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";

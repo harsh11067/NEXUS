@@ -5,8 +5,8 @@
  * mints a composite receipt, and increments reputation. Prints the profile card
  * before/after and the verify link. Level 2 definition-of-done from the CLI.
  */
-import { createAgent, runTask, getAgentCard, getWallet, config } from "@nexus/sdk";
-import type { AgentPersona } from "@nexus/sdk";
+import { createAgent, runTask, getAgentCard, getWallet, config } from "0g-nexus-sdk";
+import type { AgentPersona } from "0g-nexus-sdk";
 import { banner, ok, info, fail, preflight } from "./_common.js";
 
 const PERSONA: AgentPersona = {

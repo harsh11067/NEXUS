@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { config, getWallet, loadDeployments, deploymentsExist } from "@nexus/sdk";
+import { config, getWallet, loadDeployments, deploymentsExist } from "0g-nexus-sdk";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
