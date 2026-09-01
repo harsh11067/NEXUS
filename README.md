@@ -126,6 +126,7 @@ All contracts are compiled using Foundry and deployed directly to the **0G Galil
 | **Deterministic replay** — re-run a receipt, byte-identical output, fresh TEE proof | ✅ receipt #2 replayed (`pnpm demo:replay 2`); legacy receipts degrade gracefully |
 | **Offline proof bundles** — verify air-gapped, tamper-evident | ✅ `pnpm verify:bundle evidence/bundles/receipt-mainnet-2.json` |
 | **Trust leaderboard + public agent cards + QR** | ✅ `/leaderboard`, `/agent/[id]`, `/api/qr`, agent badges |
+| Full **testnet parity** for every mainnet capability | ✅ Galileo: identity #380, validation 100/100, external agent #381, replay, bundle |
 
 ## Levels 0–3 (testnet baseline) ✅
 

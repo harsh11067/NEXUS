@@ -1,0 +1,38 @@
+{
+  "scenario": "erc8004-rep-feed",
+  "network": "galileo",
+  "chainId": 16602,
+  "explorer": "https://chainscan-galileo.0g.ai",
+  "startedAt": "2026-09-01T01:46:43.776Z",
+  "finishedAt": "2026-09-01T01:46:57.595Z",
+  "assertions": [
+    {
+      "claim": "owner self-feedback blocked by the canonical registry",
+      "pass": true,
+      "detail": "execution reverted: \"Self-feedback not allowed\" (action=\"estimateGas\", data=\"0x08c379a00000000000000000000000000000000000000000000000000000000000000020000000000"
+    },
+    {
+      "claim": "feedback readable from the canonical registry",
+      "pass": true,
+      "detail": "value=100 tag=nexus-verified-task"
+    }
+  ],
+  "nexusReceipt": {
+    "receiptId": "5",
+    "receiptHash": "0x8ad0ee38496a033c6b50b8adb05d1808048726dddcf6f6963e629e30feb65c15",
+    "nexusAgentId": "10"
+  },
+  "erc8004AgentId": "380",
+  "reputationRegistry": "0x8004B663056A597Dffe9eCcC1965A193B7388713",
+  "feedback": {
+    "feedbackTx": "0x7d061465fb73384ce2846c901de60c3265ca62161bc7cc07134607744cfe1d62",
+    "value": 100,
+    "feedbackHash": "0x8ad0ee38496a033c6b50b8adb05d1808048726dddcf6f6963e629e30feb65c15"
+  },
+  "readBack": {
+    "value": 100,
+    "tag1": "nexus-verified-task",
+    "isRevoked": false
+  },
+  "judgeNote": "the feedbackHash on the NewFeedback event IS the NEXUS receiptHash — reputation portable across every ERC-8004 platform, still proof-anchored"
+}

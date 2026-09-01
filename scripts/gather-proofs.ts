@@ -41,22 +41,27 @@ async function logsFor(
 ): Promise<{ txHash: string; blockNumber: number; topics: string[]; data: string }[]> {
   const provider = getProvider();
   const out: any[] = [];
-  const STEP = 9000; // stay under public-RPC getLogs range limits
-  for (let start = fromBlock; start <= toBlock; start += STEP) {
-    const end = Math.min(start + STEP - 1, toBlock);
+  const push = (logs: readonly any[]) => {
+    for (const l of logs) out.push({ txHash: l.transactionHash, blockNumber: l.blockNumber, topics: l.topics, data: l.data });
+  };
+
+  // Ask for the whole range first: a NEXUS contract's own event history is
+  // small, and public RPCs only reject on *window size*, so one call usually
+  // succeeds. Only when it doesn't do we split — recursively, halving until
+  // the RPC accepts. A fixed 9k step would mean ~1400 calls on Galileo, where
+  // the suite has been deployed since June.
+  async function scan(from: number, to: number, depth = 0): Promise<void> {
+    if (from > to) return;
     try {
-      const logs = await provider.getLogs({ address, topics: [topic0], fromBlock: start, toBlock: end });
-      for (const l of logs) out.push({ txHash: l.transactionHash, blockNumber: l.blockNumber, topics: l.topics, data: l.data });
-    } catch {
-      // shrink the window on range errors
-      const mid = Math.floor((start + end) / 2);
-      try {
-        const a = await provider.getLogs({ address, topics: [topic0], fromBlock: start, toBlock: mid });
-        const b = await provider.getLogs({ address, topics: [topic0], fromBlock: mid + 1, toBlock: end });
-        for (const l of [...a, ...b]) out.push({ txHash: l.transactionHash, blockNumber: l.blockNumber, topics: l.topics, data: l.data });
-      } catch { /* skip this window */ }
+      push(await provider.getLogs({ address, topics: [topic0], fromBlock: from, toBlock: to }));
+    } catch (e) {
+      if (depth > 24 || from === to) return; // give up on this sliver rather than spin
+      const mid = Math.floor((from + to) / 2);
+      await scan(from, mid, depth + 1);
+      await scan(mid + 1, to, depth + 1);
     }
   }
+  await scan(fromBlock, toBlock);
   return out;
 }
 

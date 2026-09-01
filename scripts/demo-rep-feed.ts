@@ -27,20 +27,25 @@ async function main() {
   const ev = new Evidence("erc8004-rep-feed");
 
   const nexusReceiptId = process.argv[3] ?? "1";
+
+  // the score is anchored to a REAL NEXUS receipt hash read from chain — and
+  // the receipt itself names the agent the feedback is about
+  const [r] = await compositeMinter(getProvider()).getReceipt(nexusReceiptId);
+  if (Number(r.timestamp) === 0) fail(`NEXUS receipt #${nexusReceiptId} not found`);
+  const receiptHash: string = r.receiptHash;
+  const nexusAgentId: string = r.agentId.toString();
+  ev.set("nexusReceipt", { receiptId: nexusReceiptId, receiptHash, nexusAgentId });
+
   let erc8004AgentId = process.argv[2];
   if (!erc8004AgentId) {
-    const found = await findIdentity("1");
-    if (!found) fail("no ERC-8004 identity for NEXUS agent #1 — run pnpm demo:erc8004-register first");
+    const found = await findIdentity(nexusAgentId);
+    if (!found) {
+      fail(`NEXUS agent #${nexusAgentId} (from receipt #${nexusReceiptId}) has no ERC-8004 identity — run pnpm demo:erc8004-register ${nexusAgentId} first`);
+    }
     erc8004AgentId = found.erc8004AgentId;
   }
   ev.set("erc8004AgentId", erc8004AgentId);
   ev.set("reputationRegistry", network().erc8004.reputation);
-
-  // the score is anchored to a REAL NEXUS receipt hash read from chain
-  const [r] = await compositeMinter(getProvider()).getReceipt(nexusReceiptId);
-  if (Number(r.timestamp) === 0) fail(`NEXUS receipt #${nexusReceiptId} not found`);
-  const receiptHash: string = r.receiptHash;
-  ev.set("nexusReceipt", { receiptId: nexusReceiptId, receiptHash });
   info("receiptHash", receiptHash);
 
   // self-feedback must be blocked (canonical registry rule) — prove it

@@ -1,0 +1,57 @@
+{
+  "scenario": "erc8004-validate",
+  "network": "galileo",
+  "chainId": 16602,
+  "explorer": "https://chainscan-galileo.0g.ai",
+  "startedAt": "2026-09-01T01:33:12.066Z",
+  "finishedAt": "2026-09-01T01:36:33.585Z",
+  "assertions": [
+    {
+      "claim": "validation ran hardware-verified (processResponse === true)",
+      "pass": true
+    },
+    {
+      "claim": "response score reflects the enclave result (100)",
+      "pass": true
+    },
+    {
+      "claim": "response recorded on-chain",
+      "pass": true
+    },
+    {
+      "claim": "anchored report keccak == on-chain responseHash",
+      "pass": true
+    },
+    {
+      "claim": "underlying run's enclave signature re-verifies now",
+      "pass": true
+    }
+  ],
+  "erc8004AgentId": "380",
+  "nexusAgentId": "10",
+  "request": {
+    "requestHash": "0x32d62b1fe01cc367dbfaec1faacba98d8a12ef4ab072eeaffaa454c02d37e60e",
+    "requestURI": "https://indexer-storage-testnet-turbo.0g.ai/file?root=0xe91bc957526d401c530e660d3ed1fe152f3006d049e37478c329f7aca546946d",
+    "requestRootHash": "0xe91bc957526d401c530e660d3ed1fe152f3006d049e37478c329f7aca546946d",
+    "requestTx": "0x8bbd171ffa26b4c2b35960fb2137b1f907d077a3b44ebc2584f1a387cdc5ecf7",
+    "validator": "0x2de7baA7Bb24Dc0B051a9efEf34a10fDdC27E687"
+  },
+  "answer": {
+    "responseTx": "0xedc3490bb90399f887c9ab83dc7409115770f67379a70e242b0b958d78378e5b",
+    "response": 100,
+    "responseURI": "https://indexer-storage-testnet-turbo.0g.ai/file?root=0x776708eee53b1c54f3d22101e6b98e2ecaf4a5612c414e506233519bcc17461e",
+    "responseHash": "0xa789db618d90bf2cbbefc05158c62ae1b2c89fb3ebb36de28a926359050072f5",
+    "provider": "0xa48f01287233509FD694a22Bf840225062E67836",
+    "chatID": "19cf6749-7651-461e-92d9-ad2ca2ad3efa",
+    "model": "qwen/qwen2.5-omni-7b",
+    "teeVerified": true,
+    "nexusReceiptId": "5"
+  },
+  "reVerification": {
+    "valid": true,
+    "reportHashMatches": true,
+    "teeReVerified": true,
+    "onChainResponse": 100
+  },
+  "judgeNote": "re-run yourself: processResponse(\"0xa48f01287233509FD694a22Bf840225062E67836\", \"19cf6749-7651-461e-92d9-ad2ca2ad3efa\") → true"
+}

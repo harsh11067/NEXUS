@@ -19,9 +19,13 @@
 > **Tier 5** — N-L02 (respond = one-shot + signature-gated; spam requests cost the
 > spammer, not NEXUS) · N-L04 (card text sanitized, QR same-origin-only) · N-L05
 > (server-side chain reads only) · N-L07 (one adapter module) ✅; N-L01/03 measured
-> informally (validator p95 ≈ sealed-run latency; replay 2/2) — formal batch runs
-> remain open. Testnet parity: register/request ✅; the answer leg waits on a ~3 0G
-> faucet top-up for the testnet compute ledger (see `input.md`).
+> informally (validator p95 ≈ sealed-run latency; replay 4/4 across both networks) —
+> formal batch runs remain open.
+> **Testnet parity ✅ COMPLETE** — Galileo proves the same set: ERC-8004 identity #380,
+> validation loop (TEE 100/100, response `0xedc3490b…78e5b`), external agent **#381**
+> validated (`0x90c8d6b5…62c5`), receipt-anchored feedback (`0x7d061465…1d62`),
+> deterministic replay of receipt #5 (byte-identical + fresh enclave), offline bundle.
+> `OG_NETWORK=galileo pnpm verify:proofs` → 16 txs + 7 roots green (mainnet: 21 + 7).
 
 Cases for the next-feature layer. Same tiers/rules as `TEST.md`: mocks only in Tier 1; every ERC-8004 / Compute / Storage path in Tier 2+ hits the live network. A mocked validation response, a faked agent-card hash, or a stubbed replay is a **failed** test.
 

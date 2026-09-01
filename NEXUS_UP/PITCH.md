@@ -4,6 +4,21 @@ Two scripts: a **≤3-min demo video** (the submission requirement) and a **~4-m
 
 **The one-liner (memorize):** *"NEXUS is the verifiable trust layer for AI agents — own the intelligence, prove every task in hardware, and validate any agent on the new ERC-8004 standard, all on 0G mainnet."*
 
+> ## READINESS (2026-09-01) — every SHOW beat below is live; nothing is vaporware
+> | Beat | Live surface / command |
+> | --- | --- |
+> | Hook / hero | https://nexus-alpha-five-26.vercel.app (mainnet build) |
+> | Create + own (0:18) | `/console` → mint, or `pnpm demo:mint` |
+> | Run + prove TEE (0:45) | `pnpm demo:receipt` → `/proof/[id]` → RE-VERIFY LIVE |
+> | **ERC-8004 external validation (1:15)** | `pnpm demo:validate-external` — real canonical registry `0x8004A169…432`, real response tx on chainscan |
+> | Transfer money-shot (1:50) | `pnpm demo:transfer` |
+> | Verify-in-30s + replay (2:20) | `/proof/2` → **RE-RUN THIS PROOF** (byte-identical + fresh enclave ✓) + **offline bundle** download; QR on `/agent/1` |
+> | Close: leaderboard | `/leaderboard` |
+>
+> Judge Q&A ammo: NEXUS agent #1 = ERC-8004 **#3531152**; external agent **#3531171**
+> validated 100/100; `processResponse("0xd9966e13…471C","fef2f327-7a74-46d3-8ad5-a6375c850091") → true`;
+> 7 verified contracts; 51/51 + 13/13 tests; `OG_NETWORK=mainnet pnpm verify:proofs` green.
+
 **The wedge (say it twice in any pitch):** *"Zero Arena trades agents. Marketplaces clone them. NEXUS proves them."*
 
 ---

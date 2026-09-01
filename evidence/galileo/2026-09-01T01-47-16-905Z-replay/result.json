@@ -1,0 +1,45 @@
+{
+  "scenario": "replay",
+  "network": "galileo",
+  "chainId": 16602,
+  "explorer": "https://chainscan-galileo.0g.ai",
+  "startedAt": "2026-09-01T01:47:16.905Z",
+  "finishedAt": "2026-09-01T01:47:24.954Z",
+  "assertions": [
+    {
+      "claim": "replay re-ran on the SAME attested provider:model",
+      "pass": true
+    },
+    {
+      "claim": "replay run is freshly enclave-verified (processResponse === true)",
+      "pass": true
+    },
+    {
+      "claim": "replayed output matches the sealed original byte-for-byte",
+      "pass": true
+    }
+  ],
+  "receiptId": "5",
+  "replayable": true,
+  "original": {
+    "output": "256",
+    "outputHash": "0x6ca54da2c4784ea43fd88b3402de07ae4bced597cbb19f323b7595857a6720ae",
+    "model": "qwen/qwen2.5-omni-7b",
+    "provider": "0xa48f01287233509FD694a22Bf840225062E67836",
+    "chatID": "19cf6749-7651-461e-92d9-ad2ca2ad3efa",
+    "modelHash": "0x5434c4afcc6590d2c715cd2b06e60c9cd84da3acdf872f09090c723c836ab39f",
+    "teeReVerified": true
+  },
+  "replay": {
+    "output": "256",
+    "outputHash": "0x6ca54da2c4784ea43fd88b3402de07ae4bced597cbb19f323b7595857a6720ae",
+    "model": "qwen/qwen2.5-omni-7b",
+    "provider": "0xa48f01287233509FD694a22Bf840225062E67836",
+    "chatID": "350eee21-b716-4de7-a00b-b5a6bccb2ce6",
+    "modelHash": "0x5434c4afcc6590d2c715cd2b06e60c9cd84da3acdf872f09090c723c836ab39f",
+    "teeVerified": true
+  },
+  "match": true,
+  "modelHashMatches": true,
+  "honestNote": "outputs match under temp-0 decoding; enclave signatures are per-run (nonces) — the claim is reproducible + re-verified, not identical-signature"
+}
