@@ -60,13 +60,30 @@ async function logsFor(
   return out;
 }
 
+/** Deployment block of `address`, from the explorer's contract-creation API
+ *  (the public RPC prunes historic state, so getCode binary-search is out).
+ *  Falls back to a recent window if the explorer can't answer. */
+async function deployBlockOf(address: string, head: number): Promise<number> {
+  try {
+    const url = `${config.explorerUrl()}/open/api?module=contract&action=getcontractcreation&contractaddresses=${address}`;
+    const res = await fetch(url);
+    const data: any = await res.json();
+    const txHash = data?.result?.[0]?.txHash ?? data?.result?.[0]?.transactionHash;
+    if (txHash) {
+      const receipt = await getProvider().getTransactionReceipt(txHash);
+      if (receipt) return receipt.blockNumber;
+    }
+  } catch { /* fall through */ }
+  return Math.max(0, head - 300000);
+}
+
 async function main() {
   const net = networkName();
   const d = loadDeployments();
   const provider = getProvider();
   const head = await provider.getBlockNumber();
-  // contracts are recent; scan a generous window back from head
-  const from = Math.max(0, head - 300000);
+  // scan from the suite's deployment block — nothing NEXUS emitted can predate it
+  const from = await deployBlockOf(d.NexusAgent, head);
   console.log(`# scanning blocks ${from} … ${head} on ${net} (chain ${config.chainId()})\n`);
 
   const agent = nexusAgent(provider);
@@ -146,6 +163,40 @@ async function main() {
       return { label: `agent #${p.args.agentId} → score ${p.args.newScore}`, txHash: l.txHash, block: l.blockNumber, extra: `receipt ${String(p.args.receiptHash).slice(0, 18)}…` };
     }),
   });
+
+  // ---- ERC-8004 layer (when deployed on this network) ----
+  if (d.ERC8004ValidationRegistry && d.NexusTEEValidator) {
+    const { erc8004Validation, nexusTeeValidator } = await import("@nexus/sdk");
+    const vreg = erc8004Validation(provider);
+    const vali = nexusTeeValidator(provider);
+
+    const reqLogs = await logsFor(d.ERC8004ValidationRegistry, sig(vreg, "ValidationRequest"), from, head);
+    sections.push({
+      title: "ERC-8004 validation requests (ValidationRequest)",
+      hits: reqLogs.map((l) => {
+        const p = vreg.interface.parseLog(l)!;
+        return { label: `agent #${p.args.agentId}`, txHash: l.txHash, block: l.blockNumber, extra: `request ${String(p.args.requestHash).slice(0, 14)}…` };
+      }),
+    });
+
+    const respLogs = await logsFor(d.ERC8004ValidationRegistry, sig(vreg, "ValidationResponse"), from, head);
+    sections.push({
+      title: "TEE-backed validation responses posted by NEXUS (ValidationResponse)",
+      hits: respLogs.map((l) => {
+        const p = vreg.interface.parseLog(l)!;
+        return { label: `agent #${p.args.agentId} → ${p.args.response}/100`, txHash: l.txHash, block: l.blockNumber, extra: `tag ${p.args.tag}` };
+      }),
+    });
+
+    const postLogs = await logsFor(d.NexusTEEValidator, sig(vali, "ValidationPosted"), from, head);
+    sections.push({
+      title: "NexusTEEValidator signed responses (ValidationPosted)",
+      hits: postLogs.map((l) => {
+        const p = vali.interface.parseLog(l)!;
+        return { label: `agent #${p.args.agentId} → ${p.args.response}/100`, txHash: l.txHash, block: l.blockNumber, extra: `report ${String(p.args.responseHash).slice(0, 14)}…` };
+      }),
+    });
+  }
 
   // ---- emit markdown (generated, never hand-typed) ----
   const lines: string[] = [];

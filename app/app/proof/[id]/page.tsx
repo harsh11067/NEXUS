@@ -16,6 +16,16 @@ type Proof = {
 };
 
 type ProofCheck = { claim: string; status: boolean | null; detail: string; link?: string };
+type ReplayResult = {
+  replayable: boolean;
+  reason?: string;
+  match?: boolean;
+  modelHashMatches?: boolean;
+  original?: { output: string; teeReVerified: boolean | null; model: string };
+  replay?: { output: string; teeVerified: boolean | null };
+  error?: string;
+  runYourself?: string;
+};
 type LiveVerdict = {
   valid: boolean;
   network: string;
@@ -58,6 +68,22 @@ export default function ProofPage() {
       setLive({ valid: false, network: "", chainId: 0, checks: [], tee: { provider: "", chatID: "", model: "", anchoredVerified: null, reVerified: null }, error: String(e) });
     } finally {
       setVerifying(false);
+    }
+  }
+
+  const [replay, setReplay] = useState<ReplayResult | null>(null);
+  const [replaying, setReplaying] = useState(false);
+
+  async function reRun() {
+    setReplaying(true);
+    setReplay(null);
+    try {
+      const r = await fetch(`/api/replay/${id}`, { method: "POST" });
+      setReplay(await r.json());
+    } catch (e) {
+      setReplay({ replayable: false, error: String(e) });
+    } finally {
+      setReplaying(false);
     }
   }
 
@@ -169,6 +195,66 @@ export default function ProofPage() {
                   {copied ? "copied ✓" : "copy embed snippet"}
                 </button>
                 <span style={{ color: C.faint, fontSize: 11.5 }}>drop the badge next to this agent anywhere — it re-verifies live</span>
+              </div>
+            </div>
+
+            {/* Replay + offline bundle — the receipt survives without us */}
+            <div style={{ marginTop: 16, background: C.panel, border: `1px solid ${C.border}`, borderRadius: 12, padding: "18px 20px" }}>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 10 }}>
+                <div>
+                  <strong style={{ fontSize: 15 }}>Re-run this proof · take it offline</strong>
+                  <div style={{ color: C.muted, fontSize: 13, marginTop: 3 }}>
+                    Replay re-executes the sealed trace on the same attested provider (temp 0) and re-verifies in hardware.
+                    The bundle is the receipt&apos;s primary evidence in one file — verifiable air-gapped, years from now.
+                  </div>
+                </div>
+                <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+                  <button onClick={reRun} disabled={replaying}
+                    style={{ background: replaying ? C.border : "transparent", color: C.accent, border: `1px solid ${C.accent}`, borderRadius: 8, padding: "10px 16px", fontWeight: 700, fontSize: 13, cursor: replaying ? "wait" : "pointer" }}>
+                    {replaying ? "re-running sealed…" : "RE-RUN THIS PROOF"}
+                  </button>
+                  <a href={`/api/bundle/${id}`} download
+                    style={{ display: "inline-block", color: "#04060e", background: C.accent, borderRadius: 8, padding: "10px 16px", fontWeight: 700, fontSize: 13, textDecoration: "none" }}>
+                    ⇩ offline bundle
+                  </a>
+                </div>
+              </div>
+
+              {replay && (replay.error || replay.runYourself) && (
+                <div style={{ marginTop: 14, fontSize: 13, color: C.warn }}>
+                  {replay.error}
+                  {replay.runYourself && (
+                    <div style={{ marginTop: 6, fontFamily: "monospace", fontSize: 12, color: C.muted }}>
+                      run it yourself: <span style={{ color: C.accent }}>{replay.runYourself}</span>
+                    </div>
+                  )}
+                </div>
+              )}
+              {replay && !replay.error && !replay.runYourself && !replay.replayable && (
+                <div style={{ marginTop: 14, fontSize: 13, color: C.warn }}>{replay.reason}</div>
+              )}
+              {replay && replay.replayable && (
+                <div style={{ marginTop: 14, display: "flex", flexDirection: "column", gap: 8, fontSize: 12.5 }}>
+                  <div style={{ display: "flex", gap: 10 }}>
+                    <span style={{ fontFamily: "monospace", color: replay.match ? C.good : "#ff6b7a" }}>{replay.match ? "✓" : "✗"}</span>
+                    <span>replayed output {replay.match ? "matches the sealed original byte-for-byte" : "DIFFERS from the original"}</span>
+                  </div>
+                  <div style={{ display: "flex", gap: 10 }}>
+                    <span style={{ fontFamily: "monospace", color: replay.modelHashMatches ? C.good : "#ff6b7a" }}>{replay.modelHashMatches ? "✓" : "✗"}</span>
+                    <span>same attested provider:model re-served the task {replay.original?.model && <em style={{ color: C.faint }}>({replay.original.model})</em>}</span>
+                  </div>
+                  <div style={{ display: "flex", gap: 10 }}>
+                    <span style={{ fontFamily: "monospace", color: replay.replay?.teeVerified === true ? C.good : C.warn }}>{replay.replay?.teeVerified === true ? "✓" : "◌"}</span>
+                    <span>replay run freshly enclave-verified (processResponse)</span>
+                  </div>
+                  <div style={{ color: C.faint, fontSize: 11.5, marginTop: 4 }}>
+                    signatures differ per run (enclave nonces) — the claim is reproducible + re-verified, never identical-signature.
+                  </div>
+                </div>
+              )}
+
+              <div style={{ marginTop: 12, color: C.faint, fontSize: 11.5, fontFamily: "monospace" }}>
+                verify the bundle air-gapped: pnpm verify:bundle &lt;file&gt; · tamper one byte → FAIL
               </div>
             </div>
 

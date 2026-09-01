@@ -1,0 +1,17 @@
+{
+  "scenario": "replay",
+  "network": "mainnet",
+  "chainId": 16661,
+  "explorer": "https://chainscan.0g.ai",
+  "startedAt": "2026-09-01T00:53:04.763Z",
+  "finishedAt": "2026-09-01T00:53:08.406Z",
+  "assertions": [
+    {
+      "claim": "pre-replay-schema receipt degrades gracefully with a clear reason",
+      "pass": true
+    }
+  ],
+  "receiptId": "1",
+  "replayable": false,
+  "reason": "trace predates the replay schema (v2): it anchors hashes but not the raw messages — cannot re-execute. New runs are replayable."
+}

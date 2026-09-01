@@ -19,7 +19,17 @@ import { banner, ok, info, fail } from "./_common.js";
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 
 const TX_KEYS = /(Tx|transactionHash)$/;
-const ROOT_KEYS = /^(personaRootHash|traceRootHash|oldCipherRoot|newCipherRoot)$/;
+const ROOT_KEYS = /^(personaRootHash|traceRootHash|oldCipherRoot|newCipherRoot|cardRootHash|requestRootHash|reportRootHash)$/;
+
+/** Walk the whole artifact (new demos nest txs/roots inside sections). */
+function collect(obj: unknown, path: string, out: { key: string; value: string }[]) {
+  if (obj === null || typeof obj !== "object") return;
+  for (const [k, v] of Object.entries(obj as Record<string, unknown>)) {
+    const p = path ? `${path}.${k}` : k;
+    if (typeof v === "string") out.push({ key: p, value: v });
+    else collect(v, p, out);
+  }
+}
 
 async function main() {
   const net = networkName();
@@ -45,18 +55,21 @@ async function main() {
       }
     }
 
-    for (const [k, v] of Object.entries(artifact)) {
-      if (TX_KEYS.test(k) && typeof v === "string" && v.startsWith("0x") && v.length === 66) {
+    const entries: { key: string; value: string }[] = [];
+    collect(artifact, "", entries);
+    for (const { key, value: v } of entries) {
+      const k = key.split(".").pop()!;
+      if (TX_KEYS.test(k) && v.startsWith("0x") && v.length === 66) {
         const receipt = await provider.getTransactionReceipt(v);
         if (receipt?.status === 1) {
           checkedTx++;
-          console.log(`    ✓ ${k} ${v.slice(0, 14)}… on chain (block ${receipt.blockNumber})`);
+          console.log(`    ✓ ${key} ${v.slice(0, 14)}… on chain (block ${receipt.blockNumber})`);
         } else {
           failures++;
-          console.log(`    ✗ ${k} ${v} NOT found / failed on chain`);
+          console.log(`    ✗ ${key} ${v} NOT found / failed on chain`);
         }
       }
-      if (ROOT_KEYS.test(k) && typeof v === "string" && v.startsWith("0x")) {
+      if (ROOT_KEYS.test(k) && v.startsWith("0x")) {
         if (seenRoots.has(v)) continue;
         seenRoots.add(v);
         try {

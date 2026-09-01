@@ -1,0 +1,56 @@
+{
+  "scenario": "erc8004-validate-external",
+  "network": "mainnet",
+  "chainId": 16661,
+  "explorer": "https://chainscan.0g.ai",
+  "startedAt": "2026-09-01T00:50:23.825Z",
+  "finishedAt": "2026-09-01T00:52:07.678Z",
+  "assertions": [
+    {
+      "claim": "external agent registered on the canonical registry by a non-NEXUS wallet",
+      "pass": true,
+      "detail": "0x99de8b60cd38a226991d11c43c58d9c0f5f092edb88d5e32b9fa7a105543ea6c"
+    },
+    {
+      "claim": "NEXUS posted a TEE-backed validation for a NON-NEXUS agent",
+      "pass": true,
+      "detail": "0x511bf510bcee1be7e95168e4a9a9157482a8e32ce4c16d341f564792aee83891"
+    },
+    {
+      "claim": "anchored report hash matches on-chain",
+      "pass": true
+    },
+    {
+      "claim": "enclave re-verifies independently",
+      "pass": true
+    }
+  ],
+  "externalWallet": "0x606874CbB32FCb520E508C44B154066eA6779E2d",
+  "externalRegistration": {
+    "erc8004AgentId": "3531171",
+    "registerTx": "0x99de8b60cd38a226991d11c43c58d9c0f5f092edb88d5e32b9fa7a105543ea6c",
+    "cardRootHash": "0x21748b063c18ffad5b361f74e0f1cef2cf88032c096ca5a42ea553a5cdaf1532"
+  },
+  "request": {
+    "requestHash": "0xef0014fa7ea2b0cd32880204ddd845601fe7d23730a0cdfb64756ee77e78020b",
+    "requestURI": "https://indexer-storage-turbo.0g.ai/file?root=0x1f10ac0c0e7fe8ab1b072b93644b2b74df084003de73a4bd26d22ddd9cf915b1",
+    "requestRootHash": "0x1f10ac0c0e7fe8ab1b072b93644b2b74df084003de73a4bd26d22ddd9cf915b1",
+    "requestTx": "0xd76153b77adabf55c2925ea9840182aba8ef8f3b430128374bf33bdc06d51fcc",
+    "validator": "0x7954e03CB645c8519F8b8Fd880720228ec09D9ae"
+  },
+  "answer": {
+    "responseTx": "0x511bf510bcee1be7e95168e4a9a9157482a8e32ce4c16d341f564792aee83891",
+    "response": 100,
+    "responseURI": "https://indexer-storage-turbo.0g.ai/file?root=0xee1f7330df45048469b8f6fe72a5c47c53850ba8e32af87a295e508248a1ed72",
+    "responseHash": "0x7a0c32d781c6809e53d5b3e7686992219cc2dbee21fc781d240b813ebc6b8f1b",
+    "provider": "0xd9966e13a6026Fcca4b13E7ff95c94DE268C471C",
+    "chatID": "f349f8b6-dbb8-4863-9a9d-ca1b6c25780c",
+    "teeVerified": true
+  },
+  "reVerification": {
+    "valid": true,
+    "reportHashMatches": true,
+    "teeReVerified": true
+  },
+  "judgeNote": "an agent NEVER minted in NEXUS now carries an on-chain, hardware-backed NEXUS validation — infrastructure, not a walled garden"
+}

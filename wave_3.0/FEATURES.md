@@ -2,6 +2,14 @@
 
 What NEXUS does today (shipped + on-chain), what Wave 3 adds, and the ambitious feature set that turns it into a real SaaS. Each roadmap feature ties to `PLAN.md` and names the 0G primitive it rests on. Ordered by build priority.
 
+> **STATUS (2026-09-01):** A.1–8 ✅ live on BOTH networks (mainnet 16661 primary) ·
+> B.9–12 ✅ executed (see `docs/PROOFS.mainnet.md`) · C.14 **ProofPass** ✅ live
+> (`/api/verify`, badge, `/proof/[id]`) · C.15 **Agent Passport** ✅ delivered via the
+> ERC-8004 layer (canonical-registry identity + portable proof-anchored reputation +
+> TEE validations — see `NEXUS_UP/PLAN_NEXT.md` N1) · C.16 **Reputation explorer** ✅
+> live as `/leaderboard` + `/agent/[id]` · C.13 npm publish = human step (`input.md`) ·
+> C.17–20 roadmap (17 is FUTURE.md §3 P0).
+
 ---
 
 ## A. Shipped (live on Galileo testnet, verifiable now)

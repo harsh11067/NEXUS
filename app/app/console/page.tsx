@@ -71,12 +71,15 @@ export default function Page() {
           <h1>NEXUS</h1>
           <span className="tag">verifiable AI agents · 0G</span>
         </div>
-        {status?.wallet && (
-          <a className="chip" href={`${explorer}/address/${status.wallet}`} target="_blank" rel="noreferrer">
-            <span className="dot ok" />
-            {status.wallet.slice(0, 6)}…{status.wallet.slice(-4)} · {Number(status.balance ?? 0).toFixed(4)} 0G
-          </a>
-        )}
+        <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
+          <a className="chip" href="/leaderboard">🏆 leaderboard</a>
+          {status?.wallet && (
+            <a className="chip" href={`${explorer}/address/${status.wallet}`} target="_blank" rel="noreferrer">
+              <span className="dot ok" />
+              {status.wallet.slice(0, 6)}…{status.wallet.slice(-4)} · {Number(status.balance ?? 0).toFixed(4)} 0G
+            </a>
+          )}
+        </div>
       </header>
       <p className="subtitle">
         Create an agent → own it as an ERC-7857 token whose encrypted brain lives on 0G Storage → run a task
@@ -296,9 +299,12 @@ function AgentCard({ card, explorer, active, onClick }: { card: Card; explorer: 
         <div className="metric"><div className="v">{card.taskCount}</div><div className="k">tasks</div></div>
         <div className="metric"><div className="v">{card.cloneCount}</div><div className="k">clones</div></div>
       </div>
-      <div className="row" style={{ marginTop: 10 }}>
+      <div className="row" style={{ marginTop: 10, display: "flex", gap: 12 }}>
         <a className="mono" style={{ fontSize: 11 }} href={`${explorer}/address/${card.owner}`} target="_blank" rel="noreferrer" onClick={(e) => e.stopPropagation()}>
           owner {card.owner.slice(0, 8)}… ↗
+        </a>
+        <a className="mono" style={{ fontSize: 11 }} href={`/agent/${card.agentId}`} onClick={(e) => e.stopPropagation()}>
+          public card ↗
         </a>
       </div>
     </div>

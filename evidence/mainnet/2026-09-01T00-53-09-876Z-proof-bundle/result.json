@@ -1,0 +1,98 @@
+{
+  "scenario": "proof-bundle",
+  "network": "mainnet",
+  "chainId": 16661,
+  "explorer": "https://chainscan.0g.ai",
+  "startedAt": "2026-09-01T00:53:09.876Z",
+  "finishedAt": "2026-09-01T00:53:14.997Z",
+  "assertions": [
+    {
+      "claim": "offline verification passes (B1 receipt-hash, B2 CID link, B3 Merkle root)",
+      "pass": true
+    },
+    {
+      "claim": "one flipped byte fails the offline Merkle check (tamper-evident)",
+      "pass": true
+    },
+    {
+      "claim": "online verification passes (nothing fails; unverifiable steps stated)",
+      "pass": true
+    }
+  ],
+  "receiptId": "2",
+  "bundlePath": "evidence/bundles/receipt-mainnet-2.json",
+  "bundleBytes": 6958,
+  "offlineChecks": [
+    {
+      "id": "B1",
+      "claim": "receiptHash re-derives from (agentId, sessionId, paymentId, traceCIDHash, chainId)",
+      "status": true,
+      "detail": "0x1e05176c9cddae9d6edc17dae0a646aa704fdb1c0dc13b5f99a43c9b64018426"
+    },
+    {
+      "id": "B2",
+      "claim": "on-chain traceCIDHash == keccak256(anchored trace CID bytes)",
+      "status": true,
+      "detail": "0xe5a92966a0afe12c8840fa68aa01721a9c19b223f1ffae794a33f102f38f5832"
+    },
+    {
+      "id": "B3",
+      "claim": "0G Merkle root of the embedded trace blob == anchored CID (tamper-evident)",
+      "status": true,
+      "detail": "computed 0xae4b538eb1a71a2bfa13b1eea4d0baad5cfb4fbf7b8c03d2d7286f5fe037abeb"
+    }
+  ],
+  "tamperedChecks": [
+    {
+      "id": "B1",
+      "claim": "receiptHash re-derives from (agentId, sessionId, paymentId, traceCIDHash, chainId)",
+      "status": true,
+      "detail": "0x1e05176c9cddae9d6edc17dae0a646aa704fdb1c0dc13b5f99a43c9b64018426"
+    },
+    {
+      "id": "B2",
+      "claim": "on-chain traceCIDHash == keccak256(anchored trace CID bytes)",
+      "status": true,
+      "detail": "0xe5a92966a0afe12c8840fa68aa01721a9c19b223f1ffae794a33f102f38f5832"
+    },
+    {
+      "id": "B3",
+      "claim": "0G Merkle root of the embedded trace blob == anchored CID (tamper-evident)",
+      "status": false,
+      "detail": "computed 0xe10a5eba973ad73938c9c2c8bb4ec4fb605cbc57a86bf1d10951c533d982be39"
+    }
+  ],
+  "onlineChecks": [
+    {
+      "id": "B1",
+      "claim": "receiptHash re-derives from (agentId, sessionId, paymentId, traceCIDHash, chainId)",
+      "status": true,
+      "detail": "0x1e05176c9cddae9d6edc17dae0a646aa704fdb1c0dc13b5f99a43c9b64018426"
+    },
+    {
+      "id": "B2",
+      "claim": "on-chain traceCIDHash == keccak256(anchored trace CID bytes)",
+      "status": true,
+      "detail": "0xe5a92966a0afe12c8840fa68aa01721a9c19b223f1ffae794a33f102f38f5832"
+    },
+    {
+      "id": "B3",
+      "claim": "0G Merkle root of the embedded trace blob == anchored CID (tamper-evident)",
+      "status": true,
+      "detail": "computed 0xae4b538eb1a71a2bfa13b1eea4d0baad5cfb4fbf7b8c03d2d7286f5fe037abeb"
+    },
+    {
+      "id": "B4",
+      "claim": "enclave signature re-verifies now (processResponse)",
+      "status": true,
+      "detail": "true"
+    },
+    {
+      "id": "B5",
+      "claim": "live chain still holds this exact receipt row",
+      "status": true,
+      "detail": "https://chainscan.0g.ai/address/0x8Ecb868cFF8B9B809bB5318467b0C20d1d518c58"
+    }
+  ],
+  "judgeNote": "verify yourself, air-gapped: pnpm verify:bundle evidence/bundles/receipt-mainnet-2.json"
+}

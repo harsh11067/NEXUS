@@ -1,0 +1,98 @@
+{
+  "scenario": "proof-bundle",
+  "network": "galileo",
+  "chainId": 16602,
+  "explorer": "https://chainscan-galileo.0g.ai",
+  "startedAt": "2026-09-01T00:57:06.296Z",
+  "finishedAt": "2026-09-01T00:57:11.823Z",
+  "assertions": [
+    {
+      "claim": "offline verification passes (B1 receipt-hash, B2 CID link, B3 Merkle root)",
+      "pass": true
+    },
+    {
+      "claim": "one flipped byte fails the offline Merkle check (tamper-evident)",
+      "pass": true
+    },
+    {
+      "claim": "online verification passes (nothing fails; unverifiable steps stated)",
+      "pass": true
+    }
+  ],
+  "receiptId": "1",
+  "bundlePath": "evidence/bundles/receipt-galileo-1.json",
+  "bundleBytes": 5207,
+  "offlineChecks": [
+    {
+      "id": "B1",
+      "claim": "receiptHash re-derives from (agentId, sessionId, paymentId, traceCIDHash, chainId)",
+      "status": true,
+      "detail": "0x3ab5f43105d49485888a0b2c4f445bc5fc1ed0885982663db51db8fa30c05281"
+    },
+    {
+      "id": "B2",
+      "claim": "on-chain traceCIDHash == keccak256(anchored trace CID bytes)",
+      "status": true,
+      "detail": "0x4b505bf1d6cbd18626b6478abdd612a33dbad9c506273d6f98bc4c9d3c438a15"
+    },
+    {
+      "id": "B3",
+      "claim": "0G Merkle root of the embedded trace blob == anchored CID (tamper-evident)",
+      "status": true,
+      "detail": "computed 0x2f5d1f40bbd02746c22d0dcbe7932645aa387abb83f09a428f41a38279a8fe8d"
+    }
+  ],
+  "tamperedChecks": [
+    {
+      "id": "B1",
+      "claim": "receiptHash re-derives from (agentId, sessionId, paymentId, traceCIDHash, chainId)",
+      "status": true,
+      "detail": "0x3ab5f43105d49485888a0b2c4f445bc5fc1ed0885982663db51db8fa30c05281"
+    },
+    {
+      "id": "B2",
+      "claim": "on-chain traceCIDHash == keccak256(anchored trace CID bytes)",
+      "status": true,
+      "detail": "0x4b505bf1d6cbd18626b6478abdd612a33dbad9c506273d6f98bc4c9d3c438a15"
+    },
+    {
+      "id": "B3",
+      "claim": "0G Merkle root of the embedded trace blob == anchored CID (tamper-evident)",
+      "status": false,
+      "detail": "computed 0x48d779b6a1a255d878576cb0d39de9fa1be188169f629300f92cab40554b2cf0"
+    }
+  ],
+  "onlineChecks": [
+    {
+      "id": "B1",
+      "claim": "receiptHash re-derives from (agentId, sessionId, paymentId, traceCIDHash, chainId)",
+      "status": true,
+      "detail": "0x3ab5f43105d49485888a0b2c4f445bc5fc1ed0885982663db51db8fa30c05281"
+    },
+    {
+      "id": "B2",
+      "claim": "on-chain traceCIDHash == keccak256(anchored trace CID bytes)",
+      "status": true,
+      "detail": "0x4b505bf1d6cbd18626b6478abdd612a33dbad9c506273d6f98bc4c9d3c438a15"
+    },
+    {
+      "id": "B3",
+      "claim": "0G Merkle root of the embedded trace blob == anchored CID (tamper-evident)",
+      "status": true,
+      "detail": "computed 0x2f5d1f40bbd02746c22d0dcbe7932645aa387abb83f09a428f41a38279a8fe8d"
+    },
+    {
+      "id": "B4",
+      "claim": "enclave signature re-verifies now (processResponse)",
+      "status": null,
+      "detail": "provider no longer serves this chatID (stated, not hidden)"
+    },
+    {
+      "id": "B5",
+      "claim": "live chain still holds this exact receipt row",
+      "status": true,
+      "detail": "https://chainscan-galileo.0g.ai/address/0xf6e60F3130774051e12C697cc87682293A0FCDc2"
+    }
+  ],
+  "judgeNote": "verify yourself, air-gapped: pnpm verify:bundle evidence/bundles/receipt-galileo-1.json"
+}

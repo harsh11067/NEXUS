@@ -2,7 +2,7 @@
   "name": "nexus",
   "private": true,
   "version": "0.1.0",
-  "description": "NEXUS — the verifiable AI agent layer on 0G",
+  "description": "NEXUS \u2014 the verifiable AI agent layer on 0G",
   "scripts": {
     "build:contracts": "cd contracts && forge build",
     "test:contracts": "cd contracts && forge test -vv",
@@ -31,7 +31,15 @@
     "start": "pnpm --filter @nexus/app start",
     "build": "pnpm --filter @nexus/app build",
     "api": "pnpm --filter @nexus/app dev",
-    "ui": "node scripts/serve-ui.mjs"
+    "ui": "node scripts/serve-ui.mjs",
+    "deploy:erc8004": "tsx scripts/deploy-erc8004.ts",
+    "demo:erc8004-register": "tsx scripts/demo-erc8004-register.ts",
+    "demo:validate": "tsx scripts/demo-validate.ts",
+    "demo:validate-external": "tsx scripts/demo-validate-external.ts",
+    "demo:rep-feed": "tsx scripts/demo-rep-feed.ts",
+    "demo:replay": "tsx scripts/demo-replay.ts",
+    "demo:bundle": "tsx scripts/demo-bundle.ts",
+    "verify:bundle": "tsx scripts/verify-bundle.ts"
   },
   "devDependencies": {
     "tsx": "^4.19.2",

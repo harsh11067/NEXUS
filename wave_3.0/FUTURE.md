@@ -10,6 +10,15 @@ Priorities: **P0** next wave · **P1** the wave after · **R** roadmap/pitch.
 Sequencing rule unchanged: never start a feature until the current surface is
 reproducible-100%.
 
+> **STATUS (2026-09-01):** §7 **ProofPass Offline Bundles ✅ EXECUTED** on mainnet —
+> `exportProofBundle`/`verifyProofBundleOffline` in the SDK, `/api/bundle/[id]`
+> download on the proof page, `pnpm demo:bundle` + `pnpm verify:bundle` (B1–B5
+> checks, tamper-evident; evidence in `evidence/mainnet/*proof-bundle`).
+> §1 Genome: the **read layer is live** (`getLineage` recomputed from clone events,
+> lineage panel on `/agent/[id]`); ancestral royalty splits remain contract work.
+> §2/§3 unblocked by the deterministic-replay + ERC-8004 validation layer that
+> shipped with `NEXUS_UP` (replay is §2's core mechanism). Rest unchanged.
+
 ---
 
 ## 1. Agent Genome — verifiable lineage + ancestral royalties · P0

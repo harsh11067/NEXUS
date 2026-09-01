@@ -38,11 +38,18 @@ pnpm verify:proofs               # re-checks every row below against chain
 `forge test` → **39/39 passing.**
 
 **Mainnet (chainId 16661) — LIVE:** see the auto-generated **`docs/PROOFS.mainnet.md`**
-(regenerate anytime with `pnpm gather:proofs -- --network mainnet`). All 5 contracts
-deployed + source-verified; mint/transfer/clone/escrow/refund/reputation/receipt all
-proven with append-only artifacts in `evidence/mainnet/` and re-checkable via
-`OG_NETWORK=mainnet pnpm verify:proofs`. TEE run for judges (A-03):
-`processResponse("0xd9966e13a6026Fcca4b13E7ff95c94DE268C471C", "2cbdf7be-bde2-4317-bb27-50d5e9ae2329") → true`.
+(regenerate anytime with `pnpm gather:proofs -- --network mainnet`). All **7** contracts
+deployed + source-verified (the base 5 plus `ERC8004ValidationRegistry`
+`0x47FF84cA19FB8899E3866c7A6767157AD9fF38AC` and `NexusTEEValidator`
+`0x7954e03CB645c8519F8b8Fd880720228ec09D9ae`); mint/transfer/clone/escrow/refund/
+reputation/receipt **plus the ERC-8004 layer** (canonical-registry identity #3531152,
+TEE validation loop incl. an external agent, portable receipt-anchored reputation),
+**deterministic replay** and **offline proof bundles** all proven with append-only
+artifacts in `evidence/mainnet/` and re-checkable via `OG_NETWORK=mainnet pnpm
+verify:proofs`. TEE runs for judges (A-03):
+`processResponse("0xd9966e13a6026Fcca4b13E7ff95c94DE268C471C", "2cbdf7be-bde2-4317-bb27-50d5e9ae2329") → true` (receipt #1) and
+`processResponse("0xd9966e13a6026Fcca4b13E7ff95c94DE268C471C", "fef2f327-7a74-46d3-8ad5-a6375c850091") → true` (receipt #2, the ERC-8004 validation run — also replayable: `pnpm demo:replay 2`).
+Next-layer evidence index: **`NEXUS_UP/PROOF_NEXT.md`**.
 
 ## B. The evidence index (claim → artifact → inspect → reproduce)
 

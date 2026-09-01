@@ -13,7 +13,7 @@ Reputation comes from proofs, not reviews.
 
 [Architecture](docs/ARCHITECTURE.md) · [On-chain Proof](docs/PROOF.md) · [Setup](docs/SETUP.md) · [Docs](docs/DOCUMENTATION.md)
 
-`0G MAINNET · chainId 16661 · ERC-7857 · Sealed Inference TEE (TeeML, hardware-verified) · 39/39 contract tests · Galileo testnet fallback`
+`0G MAINNET · chainId 16661 · ERC-7857 + ERC-8004 · Sealed Inference TEE (TeeML, hardware-verified) · 51/51 contract tests · Galileo testnet fallback`
 
 </div>
 
@@ -35,6 +35,10 @@ NEXUS replaces "trust me" with "verify it":
   hardware-verified attestation. The proof is issued by the chip, not written by the operator.
 - **Reputation that can't be gamed.** Scores are computed from **on-chain proofs** and
   settled payments — every score change carries a receipt hash. No reviews.
+- **A validator for the whole agent economy.** NEXUS is a **TEE validator for ERC-8004**
+  (the Trustless-Agents standard with canonical registries live on 0G): any ERC-8004
+  agent, from any platform, can request a NEXUS validation and receive a hardware-backed
+  Validation Response on-chain — proven live against an agent never minted in NEXUS.
 
 ---
 
@@ -80,9 +84,16 @@ All 5 contracts are deployed **and source-verified** on **0G Mainnet** (Chain ID
 *   **ReputationRegistry**: [`0xc04012c6586eaF48726D37206502682375e63137`](https://chainscan.0g.ai/address/0xc04012c6586eaF48726D37206502682375e63137)
 *   **CompositeReceiptMinter**: [`0x8Ecb868cFF8B9B809bB5318467b0C20d1d518c58`](https://chainscan.0g.ai/address/0x8Ecb868cFF8B9B809bB5318467b0C20d1d518c58)
 
+**ERC-8004 "Trustless Agents" layer** (NEXUS is a TEE validator for the standard 0G ships natively):
+
+*   **ERC8004ValidationRegistry** (reference interface, NEXUS-deployed): [`0x47FF84cA19FB8899E3866c7A6767157AD9fF38AC`](https://chainscan.0g.ai/address/0x47FF84cA19FB8899E3866c7A6767157AD9fF38AC)
+*   **NexusTEEValidator**: [`0x7954e03CB645c8519F8b8Fd880720228ec09D9ae`](https://chainscan.0g.ai/address/0x7954e03CB645c8519F8b8Fd880720228ec09D9ae)
+*   Canonical **ERC-8004 Identity Registry** (erc-8004 team's deployment, live on 0G): [`0x8004A169FB4a3325136EB29fA0ceB6D2e539a432`](https://chainscan.0g.ai/address/0x8004A169FB4a3325136EB29fA0ceB6D2e539a432) — NEXUS agent #1 is registered there as **ERC-8004 agent #3531152**, card hosted on 0G Storage, content-hashed on-chain
+*   Canonical **ERC-8004 Reputation Registry**: [`0x8004BAa17C55a88189AE136b182e5fdA19dE9b63`](https://chainscan.0g.ai/address/0x8004BAa17C55a88189AE136b182e5fdA19dE9b63) — carries NEXUS proof-anchored feedback (the `feedbackHash` IS a NEXUS `receiptHash`)
+
 Live mainnet proof index (auto-generated from chain, never hand-typed): **[docs/PROOFS.mainnet.md](docs/PROOFS.mainnet.md)** · append-only run artifacts: **[evidence/mainnet/](evidence/mainnet/)**
 
-Proven live on 16661: mint (encrypted persona on mainnet 0G Storage) · **re-encryption transfer with seller access-loss** · clone + royalty · escrow with over-limit/wrong-merchant blocked on-chain · TTL refund · proof-only reputation (`NotWriter` guard) · **TEE-verified inference receipt with `AlreadyMinted` replay guard**.
+Proven live on 16661: mint (encrypted persona on mainnet 0G Storage) · **re-encryption transfer with seller access-loss** · clone + royalty · escrow with over-limit/wrong-merchant blocked on-chain · TTL refund · proof-only reputation (`NotWriter` guard) · **TEE-verified inference receipt with `AlreadyMinted` replay guard** · **ERC-8004 validation loop** (request → sealed run → on-chain TEE-backed response, including for an agent NEVER minted in NEXUS) · **deterministic replay** (same input → byte-identical output → fresh enclave proof) · **offline proof bundles** (verify a receipt air-gapped).
 
 The app targets mainnet when `NEXT_PUBLIC_USE_MAINNET=true` (or `OG_NETWORK=mainnet`), with Galileo testnet as the always-on fallback.
 
@@ -109,6 +120,12 @@ All contracts are compiled using Foundry and deployed directly to the **0G Galil
 | **Hardware-verified Sealed Inference on mainnet** (TeeML, `processResponse === true`) | ✅ receipt #1, `{provider, chatID}` published for independent re-verification |
 | ProofPass: `/api/verify/[receiptId]` + client-side **RE-VERIFY LIVE** + embeddable badge | ✅ `/proof/1` re-derives all 7 checks from chain + storage + enclave |
 | Network switch with testnet fallback | ✅ `NEXT_PUBLIC_USE_MAINNET` / `OG_NETWORK` |
+| **ERC-8004 portable identity** (canonical registry, card on 0G Storage, hash on-chain) | ✅ NEXUS agent #1 = ERC-8004 #3531152, `evidence/mainnet/*erc8004-register` |
+| **ERC-8004 TEE validation** — incl. an EXTERNAL (non-NEXUS) agent | ✅ `evidence/mainnet/*erc8004-validate*` (score 100/100, enclave re-verified) |
+| **Portable proof-anchored reputation** in the canonical ERC-8004 Reputation Registry | ✅ `feedbackHash` = NEXUS `receiptHash`; owner self-feedback blocked on-chain |
+| **Deterministic replay** — re-run a receipt, byte-identical output, fresh TEE proof | ✅ receipt #2 replayed (`pnpm demo:replay 2`); legacy receipts degrade gracefully |
+| **Offline proof bundles** — verify air-gapped, tamper-evident | ✅ `pnpm verify:bundle evidence/bundles/receipt-mainnet-2.json` |
+| **Trust leaderboard + public agent cards + QR** | ✅ `/leaderboard`, `/agent/[id]`, `/api/qr`, agent badges |
 
 ## Levels 0–3 (testnet baseline) ✅
 
@@ -121,7 +138,7 @@ Everything below ran against live 0G Galileo infrastructure (no mocks). Full tx 
 | **L2** | The prove loop: session → trace on 0G Storage → composite receipt → reputation | ✅ 4 receipts |
 | **L3** | Clone (royalty) · transfer (re-encryption) · escrow-paid task · proof page | ✅ 3 clones, 1 transfer, 1 escrow settle |
 
-5 contracts deployed · `forge test` **39/39** · `tsc` clean across app + SDK.
+7 contracts deployed per network · `forge test` **51/51** · `pnpm test:sdk` **13/13** · `tsc` clean across app + SDK.
 
 ---
 
@@ -157,6 +174,18 @@ pnpm demo:escrow    # over-limit + wrong-merchant blocked on-chain, then lock→
 pnpm demo:refund    # TTL refund — funds can never lock
 pnpm demo:rep       # proof-only reputation (direct write reverts NotWriter)
 pnpm demo:receipt   # full prove-loop + TEE verify + AlreadyMinted replay guard
+```
+
+The ERC-8004 + replay layer (Wave 3+, live on mainnet):
+
+```bash
+pnpm demo:erc8004-register [id]   # portable identity in the CANONICAL ERC-8004 registry, card on 0G Storage
+pnpm demo:validate                # validation loop: request → sealed TEE run → on-chain response → re-verify
+pnpm demo:validate-external       # validate an agent NEVER minted in NEXUS (infrastructure, not walled garden)
+pnpm demo:rep-feed                # NEXUS receiptHash-anchored feedback into the canonical Reputation Registry
+pnpm demo:replay [receiptId]      # deterministic replay: same input → same output → fresh enclave proof
+pnpm demo:bundle [receiptId]      # export + verify an offline proof bundle (tamper one byte → FAIL)
+pnpm verify:bundle <file>         # air-gapped verification of any exported bundle
 ```
 
 ---

@@ -1,0 +1,45 @@
+{
+  "scenario": "replay",
+  "network": "mainnet",
+  "chainId": 16661,
+  "explorer": "https://chainscan.0g.ai",
+  "startedAt": "2026-09-01T00:52:44.707Z",
+  "finishedAt": "2026-09-01T00:52:54.429Z",
+  "assertions": [
+    {
+      "claim": "replay re-ran on the SAME attested provider:model",
+      "pass": true
+    },
+    {
+      "claim": "replay run is freshly enclave-verified (processResponse === true)",
+      "pass": true
+    },
+    {
+      "claim": "replayed output matches the sealed original byte-for-byte",
+      "pass": true
+    }
+  ],
+  "receiptId": "2",
+  "replayable": true,
+  "original": {
+    "output": "256",
+    "outputHash": "0x6ca54da2c4784ea43fd88b3402de07ae4bced597cbb19f323b7595857a6720ae",
+    "model": "zai-org/GLM-5-FP8",
+    "provider": "0xd9966e13a6026Fcca4b13E7ff95c94DE268C471C",
+    "chatID": "fef2f327-7a74-46d3-8ad5-a6375c850091",
+    "modelHash": "0xd5c3803e075c2a4d1e3a5af8f39aaf190ffd4161472a05a9856d3b466142db92",
+    "teeReVerified": true
+  },
+  "replay": {
+    "output": "256",
+    "outputHash": "0x6ca54da2c4784ea43fd88b3402de07ae4bced597cbb19f323b7595857a6720ae",
+    "model": "zai-org/GLM-5-FP8",
+    "provider": "0xd9966e13a6026Fcca4b13E7ff95c94DE268C471C",
+    "chatID": "a0eaa6a6-9340-4ea9-ab05-b76344948506",
+    "modelHash": "0xd5c3803e075c2a4d1e3a5af8f39aaf190ffd4161472a05a9856d3b466142db92",
+    "teeVerified": true
+  },
+  "match": true,
+  "modelHashMatches": true,
+  "honestNote": "outputs match under temp-0 decoding; enclave signatures are per-run (nonces) — the claim is reproducible + re-verified, not identical-signature"
+}

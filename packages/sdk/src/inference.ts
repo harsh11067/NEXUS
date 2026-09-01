@@ -71,14 +71,29 @@ export async function verifyTeeResponse(provider: string, chatID: string): Promi
   }
 }
 
-export async function runInference(messages: ChatMessage[]): Promise<InferenceResult> {
+export interface InferenceOptions {
+  /** decoding params — replay/determinism (temp 0 + fixed seed) */
+  temperature?: number;
+  seed?: number;
+  /** pin a specific provider (replay must re-run on the SAME attested provider) */
+  provider?: string;
+}
+
+export async function runInference(messages: ChatMessage[], opts: InferenceOptions = {}): Promise<InferenceResult> {
   const mode = config.compute.mode();
-  if (mode === "broker") return runBroker(messages);
-  return runRouter(messages);
+  if (mode === "broker") return runBroker(messages, opts);
+  return runRouter(messages, opts);
+}
+
+function decodingParams(opts: InferenceOptions): Record<string, number> {
+  const p: Record<string, number> = {};
+  if (opts.temperature !== undefined) p.temperature = opts.temperature;
+  if (opts.seed !== undefined) p.seed = opts.seed;
+  return p;
 }
 
 // --------------------------------------------------------------- router mode
-async function runRouter(messages: ChatMessage[]): Promise<InferenceResult> {
+async function runRouter(messages: ChatMessage[], opts: InferenceOptions = {}): Promise<InferenceResult> {
   const apiKey = config.compute.apiKey();
   if (!apiKey) {
     throw new Error(
@@ -93,7 +108,7 @@ async function runRouter(messages: ChatMessage[]): Promise<InferenceResult> {
       "Content-Type": "application/json",
       Authorization: `Bearer ${apiKey}`,
     },
-    body: JSON.stringify({ model, messages }),
+    body: JSON.stringify({ model, messages, ...decodingParams(opts) }),
   });
   if (!res.ok) {
     throw new Error(`router inference failed ${res.status}: ${await safeText(res)}`);
@@ -116,7 +131,7 @@ async function runRouter(messages: ChatMessage[]): Promise<InferenceResult> {
 }
 
 // --------------------------------------------------------------- broker mode
-async function runBroker(messages: ChatMessage[]): Promise<InferenceResult> {
+async function runBroker(messages: ChatMessage[], opts: InferenceOptions = {}): Promise<InferenceResult> {
   const provider = new JsonRpcProvider(config.compute.rpcUrl());
   const wallet = new Wallet(config.privateKey(), provider);
   const broker = await createZGComputeNetworkBroker(wallet);
@@ -124,8 +139,8 @@ async function runBroker(messages: ChatMessage[]): Promise<InferenceResult> {
   // ensure the ledger has funds
   await ensureLedger(broker);
 
-  // choose a provider
-  let providerAddress = config.compute.provider();
+  // choose a provider (an explicit pin — e.g. a replay — wins)
+  let providerAddress = opts.provider ?? config.compute.provider();
   if (!providerAddress) {
     const services: any[] = await broker.inference.listService();
     if (!services || services.length === 0) throw new Error("no inference services available");
@@ -144,7 +159,7 @@ async function runBroker(messages: ChatMessage[]): Promise<InferenceResult> {
   const res = await fetch(`${endpoint}/chat/completions`, {
     method: "POST",
     headers: { "Content-Type": "application/json", ...(headers as unknown as Record<string, string>) },
-    body: JSON.stringify({ messages, model }),
+    body: JSON.stringify({ messages, model, ...decodingParams(opts) }),
   });
   if (!res.ok) throw new Error(`broker inference failed ${res.status}: ${await safeText(res)}`);
   const data: any = await res.json();

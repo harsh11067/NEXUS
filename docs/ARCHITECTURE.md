@@ -129,14 +129,53 @@ writes that don't.
 
 ---
 
-## 7. Repo map
+## 7. The ERC-8004 layer (NEXUS as validator for the agent economy)
+
+ERC-8004 ("Trustless Agents", Draft) ships three registries; the erc-8004 team's
+**canonical Identity + Reputation registries are live on 0G** (mainnet
+`0x8004A169…432` / `0x8004BAa1…9b63`, probed via `eth_getCode`, never assumed from
+docs). The Validation Registry has **no canonical deployment on any chain yet**
+(spec section under revision with the TEE community), so NEXUS deploys the
+interface-faithful reference and pins the whole standard behind ONE adapter module
+(`packages/sdk/src/erc8004.ts`) — a spec revision changes one file.
+
+```
+Identity   → canonical registry: register(agentURI, metadata)
+             agentURI → agent card JSON on 0G Storage
+             metadata: agentCardHash (keccak, integrity) + nexusAgent (link to the ERC-7857 token)
+Validation → client: validationRequest(NexusTEEValidator, agentId, requestURI, requestHash)
+             NEXUS:  re-executes in 0G Sealed Inference → report on 0G Storage
+                     → trusted signer signs digest(validator, chainid, request, agent, score, reportHash)
+                     → NexusTEEValidator.respond → registry.validationResponse (0..100)
+             anyone: report hash + enclave signature re-verify independently
+Reputation → canonical registry: giveFeedback(…, feedbackHash = NEXUS receiptHash)
+             (owner/operator self-feedback rejected by the registry itself)
+```
+
+Works for agents **never minted in NEXUS** — proven on mainnet against an
+externally-registered agent. Trust model unchanged and stated: the inference proof
+is hardware (enclave); the binding of run → response is the v1 trusted signer
+(same as transfers), v2 = TEE/ZKP oracle.
+
+**Deterministic replay** (the validation method): proven runs record the full
+message set + decoding params (temp 0, seed 8004) in the encrypted trace
+(schema 2); `replayReceipt` re-executes on the SAME attested provider and compares
+byte-for-byte, then re-verifies BOTH runs against the enclave. **Offline proof
+bundles** package receipt + trace blob + chain coordinates into one JSON that
+verifies air-gapped (receipt-hash re-derivation, chain↔storage link, 0G Merkle
+root) — `pnpm verify:bundle <file>`.
+
+---
+
+## 8. Repo map
 
 | Path | What |
 |---|---|
-| `contracts/` | Foundry — 5 contracts, tests (**39/39**), `Deploy.s.sol`, `deployments/galileo.json` |
-| `packages/sdk/` | `@nexus/sdk` — crypto · storage · inference · runtime · contracts · config |
-| `app/` | Next.js — `/api/*` backend, `/console`, `/proof/[id]`, `/d/[...slug]` district server |
+| `contracts/` | Foundry — 7 contracts, tests (**51/51**), `deployments/{galileo,mainnet}.json` |
+| `packages/sdk/` | `@nexus/sdk` — crypto · storage · inference · runtime · verify · erc8004 · replay · bundle · leaderboard |
+| `app/` | Next.js — `/api/*` backend, `/console`, `/proof/[id]`, `/agent/[id]`, `/leaderboard`, `/d/[...slug]` |
 | `NEXUS_UI/` | Cinematic Three.js districts + `nexus-api.js` (the browser ↔ chain bridge + viem wallet) |
-| `scripts/` | gate-checks G1–G4 · demo-level1/2 · `deploy.ts` · `gather-proofs.ts` |
+| `scripts/` | gate-checks G1–G4 · demo:* (12 scenarios) · `deploy.ts` · `deploy-erc8004.ts` · `gather-proofs.ts` · `verify-proofs.ts` · `verify-bundle.ts` |
+| `evidence/` | append-only run artifacts per network + exported offline bundles |
 
-See [`PROOF.md`](PROOF.md) for the on-chain evidence, [`SETUP.md`](SETUP.md) to run it.
+See [`PROOF.md`](PROOF.md) + `PROOFS.mainnet.md` for the on-chain evidence, [`SETUP.md`](SETUP.md) to run it.

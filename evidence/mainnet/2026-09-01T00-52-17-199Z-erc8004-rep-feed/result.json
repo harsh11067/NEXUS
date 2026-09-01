@@ -1,0 +1,37 @@
+{
+  "scenario": "erc8004-rep-feed",
+  "network": "mainnet",
+  "chainId": 16661,
+  "explorer": "https://chainscan.0g.ai",
+  "startedAt": "2026-09-01T00:52:17.199Z",
+  "finishedAt": "2026-09-01T00:52:29.625Z",
+  "assertions": [
+    {
+      "claim": "owner self-feedback blocked by the canonical registry",
+      "pass": true,
+      "detail": "execution reverted: \"Self-feedback not allowed\" (action=\"estimateGas\", data=\"0x08c379a00000000000000000000000000000000000000000000000000000000000000020000000000"
+    },
+    {
+      "claim": "feedback readable from the canonical registry",
+      "pass": true,
+      "detail": "value=100 tag=nexus-verified-task"
+    }
+  ],
+  "erc8004AgentId": "3531152",
+  "reputationRegistry": "0x8004BAa17C55a88189AE136b182e5fdA19dE9b63",
+  "nexusReceipt": {
+    "receiptId": "1",
+    "receiptHash": "0x3e7fb945418dc4a8a94c09edea4e33c25fbedb24721dfbb58b5e5de65e0de1aa"
+  },
+  "feedback": {
+    "feedbackTx": "0xfc3dc66f8dbae68a42a28e7b7b6e5ebb9e48b42c22360db8c878348c5c52811d",
+    "value": 100,
+    "feedbackHash": "0x3e7fb945418dc4a8a94c09edea4e33c25fbedb24721dfbb58b5e5de65e0de1aa"
+  },
+  "readBack": {
+    "value": 100,
+    "tag1": "nexus-verified-task",
+    "isRevoked": false
+  },
+  "judgeNote": "the feedbackHash on the NewFeedback event IS the NEXUS receiptHash — reputation portable across every ERC-8004 platform, still proof-anchored"
+}

@@ -1,0 +1,57 @@
+{
+  "scenario": "erc8004-validate",
+  "network": "mainnet",
+  "chainId": 16661,
+  "explorer": "https://chainscan.0g.ai",
+  "startedAt": "2026-09-01T00:44:32.355Z",
+  "finishedAt": "2026-09-01T00:46:52.503Z",
+  "assertions": [
+    {
+      "claim": "validation ran hardware-verified (processResponse === true)",
+      "pass": true
+    },
+    {
+      "claim": "response score reflects the enclave result (100)",
+      "pass": true
+    },
+    {
+      "claim": "response recorded on-chain",
+      "pass": true
+    },
+    {
+      "claim": "anchored report keccak == on-chain responseHash",
+      "pass": true
+    },
+    {
+      "claim": "underlying run's enclave signature re-verifies now",
+      "pass": true
+    }
+  ],
+  "erc8004AgentId": "3531152",
+  "nexusAgentId": "1",
+  "request": {
+    "requestHash": "0x4e71a46166055f9219d89d3efba827f8815e4952fa6f9f6c1922241db2be1c78",
+    "requestURI": "https://indexer-storage-turbo.0g.ai/file?root=0xd077eb5fcc1f61d83aab52be86a5a8b75a4589026edc6c029b169cb331134bb3",
+    "requestRootHash": "0xd077eb5fcc1f61d83aab52be86a5a8b75a4589026edc6c029b169cb331134bb3",
+    "requestTx": "0x92cb9d242d9dcaad8ed0fc98ce3aefab876909bd5affd1f10377c437eae944b8",
+    "validator": "0x7954e03CB645c8519F8b8Fd880720228ec09D9ae"
+  },
+  "answer": {
+    "responseTx": "0xcc8af4f7eb390fbb0d99a221221845cbe1a6688853289f7368d7343ad6086529",
+    "response": 100,
+    "responseURI": "https://indexer-storage-turbo.0g.ai/file?root=0xccdd484cefe8cda29c06e5a398e4e5e24522009ed17f6830e8fcd6ae20f12c91",
+    "responseHash": "0xfa9adb9f713fc4709f7a5a2ed728c1ac35d88836d7787be5177e9495161e150f",
+    "provider": "0xd9966e13a6026Fcca4b13E7ff95c94DE268C471C",
+    "chatID": "fef2f327-7a74-46d3-8ad5-a6375c850091",
+    "model": "zai-org/GLM-5-FP8",
+    "teeVerified": true,
+    "nexusReceiptId": "2"
+  },
+  "reVerification": {
+    "valid": true,
+    "reportHashMatches": true,
+    "teeReVerified": true,
+    "onChainResponse": 100
+  },
+  "judgeNote": "re-run yourself: processResponse(\"0xd9966e13a6026Fcca4b13E7ff95c94DE268C471C\", \"fef2f327-7a74-46d3-8ad5-a6375c850091\") → true"
+}

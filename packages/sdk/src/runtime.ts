@@ -19,6 +19,7 @@ import {
 } from "ethers";
 import {
   getWallet,
+  getProvider,
   config,
   ownerPubKey,
   oraclePubKey,
@@ -122,6 +123,9 @@ export interface SpendStep {
   evidence: string;     // fulfillment evidence payload
 }
 
+/** Deterministic decoding locked for every proven run (replay contract). */
+export const REPLAY_PARAMS = { temperature: 0, seed: 8004 } as const;
+
 export interface RunTaskOptions {
   prove?: boolean;      // run the L2 prove-loop (default true if deployed)
   spend?: SpendStep;    // optional escrow spend (L3)
@@ -177,8 +181,9 @@ export async function runTask(
     { role: "user", content: prompt },
   ];
 
-  // TEE — Sealed Inference
-  const inf = await runInference(messages);
+  // TEE — Sealed Inference. Deterministic decoding (temp 0, fixed seed) so the
+  // run is REPLAYABLE: anyone with trace access can re-execute and compare.
+  const inf = await runInference(messages, REPLAY_PARAMS);
 
   const base: RunTaskResult = {
     output: inf.content,
@@ -206,11 +211,20 @@ export async function runTask(
     fulfillmentBytes = hexlify(toUtf8Bytes(opts.spend.evidence));
   }
 
-  // assemble + encrypt the trace bundle, upload to 0G Storage
+  // assemble + encrypt the trace bundle, upload to 0G Storage.
+  // schema 2: carries everything needed for DETERMINISTIC REPLAY (messages,
+  // output, provider, params) — encrypted for owner + oracle like the persona.
   const trace = {
+    schema: 2,
     sessionId,
     agentId,
     policyHashAtRun: policyHash,
+    model: inf.model,
+    provider: inf.provider,
+    chatID: inf.chatID,
+    params: REPLAY_PARAMS,
+    messages,
+    output: inf.content,
     modelHash: keccak256(toUtf8Bytes(`${inf.provider}:${inf.model}`)),
     inputHash: inf.inputHash,
     outputHash: inf.outputHash,
@@ -501,7 +515,8 @@ export async function finalizeTransferFor(
 
 /** The 30-second proof bundle: five independently-verifiable facts for a receipt. */
 export async function getReceiptProof(receiptId: string, wallet?: Wallet) {
-  const w = wallet ?? getWallet();
+  // pure reads — never require an operator key (read-only deployments)
+  const w = wallet ?? getProvider();
   const d = loadDeployments();
   const minter = compositeMinter(w);
   const [r] = await minter.getReceipt(receiptId);
@@ -569,9 +584,10 @@ export interface AgentCard {
 }
 
 export async function getAgentCard(agentId: string, wallet?: Wallet): Promise<AgentCard> {
-  const w = wallet ?? getWallet();
-  const agent = nexusAgent(w.provider ? w : getWallet());
-  const rep = reputationRegistry(w);
+  // pure reads — never require an operator key (read-only deployments)
+  const runner = wallet ?? getProvider();
+  const agent = nexusAgent(runner);
+  const rep = reputationRegistry(runner);
   const [owner, creator, policyHash, cloneCount, parentOf, cipherRef] = await Promise.all([
     agent.ownerOf(agentId),
     agent.creatorOf(agentId),

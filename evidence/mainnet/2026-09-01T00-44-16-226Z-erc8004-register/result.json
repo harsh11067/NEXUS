@@ -1,0 +1,30 @@
+{
+  "scenario": "erc8004-register",
+  "network": "mainnet",
+  "chainId": 16661,
+  "explorer": "https://chainscan.0g.ai",
+  "startedAt": "2026-09-01T00:44:16.226Z",
+  "finishedAt": "2026-09-01T00:44:22.166Z",
+  "assertions": [
+    {
+      "claim": "canonical ERC-8004 Identity Registry has live code on this chain",
+      "pass": true,
+      "detail": "130 bytes"
+    },
+    {
+      "claim": "existing agent card retrieves + hash matches on-chain",
+      "pass": true,
+      "detail": "0x9103742c35f746e1645e35f957c169abb7e4a1fc838306d1a51e3f889c9ef955"
+    },
+    {
+      "claim": "existing identity owned by the NEXUS owner wallet",
+      "pass": true
+    }
+  ],
+  "nexusAgentId": "1",
+  "identityRegistry": "0x8004A169FB4a3325136EB29fA0ceB6D2e539a432",
+  "alreadyRegistered": {
+    "erc8004AgentId": "3531152",
+    "agentURI": "https://indexer-storage-turbo.0g.ai/file?root=0x9cebc62ae2c91580444deaa67895c66d53466e43e8c5b158c604bb48e73826d5"
+  }
+}

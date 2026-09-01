@@ -75,6 +75,15 @@ export interface NetworkPreset {
   explorerUrl: string;
   storageIndexer: string;
   storageExplorer: string;
+  /**
+   * Canonical ERC-8004 (Trustless Agents) registries on this chain, from the
+   * erc-8004 team's cross-chain vanity deployment (verified live via
+   * eth_getCode + EIP-1967 proxy slots on 2026-09-01 — real code on both
+   * networks). The Validation Registry has NO canonical deployment on any
+   * chain yet (spec section under revision), so NEXUS deploys the reference
+   * interface itself — that address lives in deployments/<network>.json.
+   */
+  erc8004: { identity: string; reputation: string };
 }
 
 export const NETWORKS: Record<NetworkName, NetworkPreset> = {
@@ -86,6 +95,10 @@ export const NETWORKS: Record<NetworkName, NetworkPreset> = {
     explorerUrl: "https://chainscan-galileo.0g.ai",
     storageIndexer: "https://indexer-storage-testnet-turbo.0g.ai",
     storageExplorer: "https://storagescan-galileo.0g.ai",
+    erc8004: {
+      identity: "0x8004A818BFB912233c491871b3d84c89A494BD9e",
+      reputation: "0x8004B663056A597Dffe9eCcC1965A193B7388713",
+    },
   },
   mainnet: {
     name: "mainnet",
@@ -95,6 +108,10 @@ export const NETWORKS: Record<NetworkName, NetworkPreset> = {
     explorerUrl: "https://chainscan.0g.ai",
     storageIndexer: "https://indexer-storage-turbo.0g.ai",
     storageExplorer: "https://storagescan.0g.ai",
+    erc8004: {
+      identity: "0x8004A169FB4a3325136EB29fA0ceB6D2e539a432",
+      reputation: "0x8004BAa17C55a88189AE136b182e5fdA19dE9b63",
+    },
   },
 };
 
@@ -133,6 +150,9 @@ export interface Deployments {
   ReputationRegistry: string;
   CompositeReceiptMinter: string;
   trustedSigner: string;
+  /** ERC-8004 layer (NEXUS-deployed; canonical Identity/Reputation live in NETWORKS presets) */
+  ERC8004ValidationRegistry?: string;
+  NexusTEEValidator?: string;
 }
 
 export function env(key: string, fallback?: string): string {

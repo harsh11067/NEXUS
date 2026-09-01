@@ -18,5 +18,5 @@ galileo = "${OG_RPC_URL}"
 og_mainnet = "https://evmrpc.0g.ai"
 
 [etherscan]
-galileo = { key = "any", url = "https://chainscan-galileo.0g.ai/api", chain = 16602 }
+galileo = { key = "any", url = "https://chainscan-galileo.0g.ai/open/api", chain = 16602 }
 og_mainnet = { key = "any", url = "https://chainscan.0g.ai/open/api", chain = 16661 }

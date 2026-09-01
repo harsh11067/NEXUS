@@ -1,0 +1,56 @@
+{
+  "scenario": "erc8004-register",
+  "network": "galileo",
+  "chainId": 16602,
+  "explorer": "https://chainscan-galileo.0g.ai",
+  "startedAt": "2026-09-01T00:54:45.593Z",
+  "finishedAt": "2026-09-01T00:55:20.113Z",
+  "assertions": [
+    {
+      "claim": "canonical ERC-8004 Identity Registry has live code on this chain",
+      "pass": true,
+      "detail": "130 bytes"
+    },
+    {
+      "claim": "agent card retrieves from 0G Storage and parses",
+      "pass": true
+    },
+    {
+      "claim": "card keccak256 == on-chain agentCardHash metadata",
+      "pass": true,
+      "detail": "0x516283fbdd4ace0715af35d952a4d6e58b7187c247956261ae864427fe6d8b94"
+    },
+    {
+      "claim": "ERC-8004 tokenId resolves on-chain to the NEXUS owner wallet",
+      "pass": true,
+      "detail": "0x01239786Ac8c9D78F8055045d7a3e7E18e5492DA"
+    },
+    {
+      "claim": "reverse lookup (nexusAgent link metadata) finds the same identity",
+      "pass": true
+    }
+  ],
+  "nexusAgentId": "10",
+  "identityRegistry": "0x8004A818BFB912233c491871b3d84c89A494BD9e",
+  "registration": {
+    "erc8004AgentId": "380",
+    "identityRegistry": "0x8004A818BFB912233c491871b3d84c89A494BD9e",
+    "registerTx": "0xf70e3170590319856fa453ad0f737696b756565c1fc9e2f6b43f19f8d4384438",
+    "agentURI": "https://indexer-storage-testnet-turbo.0g.ai/file?root=0xe8f2c0a23c507cdacff451a72b44867e453a5fa9d1cd70a6890e8cba3d36d7cb",
+    "cardRootHash": "0xe8f2c0a23c507cdacff451a72b44867e453a5fa9d1cd70a6890e8cba3d36d7cb",
+    "contentHash": "0x516283fbdd4ace0715af35d952a4d6e58b7187c247956261ae864427fe6d8b94",
+    "registryUrl": "https://chainscan-galileo.0g.ai/address/0x8004A818BFB912233c491871b3d84c89A494BD9e"
+  },
+  "cardCheck": {
+    "agentURI": "https://indexer-storage-testnet-turbo.0g.ai/file?root=0xe8f2c0a23c507cdacff451a72b44867e453a5fa9d1cd70a6890e8cba3d36d7cb",
+    "contentHash": "0x516283fbdd4ace0715af35d952a4d6e58b7187c247956261ae864427fe6d8b94",
+    "onChainHash": "0x516283fbdd4ace0715af35d952a4d6e58b7187c247956261ae864427fe6d8b94",
+    "hashMatches": true,
+    "cardName": "NEXUS Agent #10"
+  },
+  "reverseLookup": {
+    "erc8004AgentId": "380",
+    "agentURI": "https://indexer-storage-testnet-turbo.0g.ai/file?root=0xe8f2c0a23c507cdacff451a72b44867e453a5fa9d1cd70a6890e8cba3d36d7cb"
+  },
+  "registryExplorer": "https://chainscan-galileo.0g.ai/address/0x8004A818BFB912233c491871b3d84c89A494BD9e"
+}
