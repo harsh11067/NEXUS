@@ -28,7 +28,8 @@
 >   identity #380, external agent #381, replay of receipt #5, bundle).
 >   Evidence: `evidence/{mainnet,galileo}/*erc8004*`, `*replay`, `*proof-bundle` ·
 >   `docs/PROOFS.{mainnet,galileo}.md` ERC-8004 sections · `input.md` for the
->   remaining human items (npm publish, video, X post — nothing blocking).
+>   remaining human items (video, X post — nothing blocking). SDK published to npm
+>   as `0g-nexus-sdk` v0.1.0 (Apache-2.0).
 
 Extends `PLAN.md` and `WAVE3_SUPERIORITY.md` with the next-generation features that use the newest 0G / agent-standard developments (June–Aug 2026). Order: harden existing → ship Wave 3 superiority set → this layer. Every feature rests on a real, current primitive and deepens the one thesis: **NEXUS is the verifiable trust + validation layer for the agent economy on 0G.**
 

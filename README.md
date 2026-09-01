@@ -148,13 +148,36 @@ Everything below ran against live 0G Galileo infrastructure (no mocks). Full tx 
 ```bash
 pnpm install
 cp .env.example .env          # fill PRIVATE_KEY (funded 0G testnet wallet)
-pnpm test:contracts           # 39/39
+pnpm test:contracts           # 51/51
 pnpm dev                      # → http://localhost:3000
 ```
 
 - `/` — the cinematic NEXUS world (districts)
 - `/console` — operator dashboard: create → run → prove, live profile cards
 - `/proof/<receiptId>` — **verify-in-30s** proof page (5 on-chain facts)
+
+### Use it in your own project
+
+The SDK is on npm — verify a real mainnet receipt from a clean project, no clone and no
+key required:
+
+```bash
+npm install 0g-nexus-sdk
+```
+
+```ts
+process.env.OG_NETWORK = "mainnet";
+const { verifyReceipt } = await import("0g-nexus-sdk");
+
+const proof = await verifyReceipt("2");
+console.log(proof.valid);   // true — every check recomputed live
+for (const c of proof.checks) console.log(c.status ? "PASS" : "FAIL", c.claim);
+```
+
+Also exported: `replayReceipt` (deterministic re-run), `exportProofBundle` /
+`verifyProofBundleOffline` (air-gapped verification), and the full ERC-8004 adapter
+(`registerIdentity`, `requestValidation`, `verifyValidation`, `giveFeedback`).
+Package docs: https://www.npmjs.com/package/0g-nexus-sdk · Apache-2.0.
 
 Reproduce the proofs straight from chain (no key needed):
 

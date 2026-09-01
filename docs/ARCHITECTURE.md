@@ -172,7 +172,7 @@ root) — `pnpm verify:bundle <file>`.
 | Path | What |
 |---|---|
 | `contracts/` | Foundry — 7 contracts, tests (**51/51**), `deployments/{galileo,mainnet}.json` |
-| `packages/sdk/` | `0g-nexus-sdk` — crypto · storage · inference · runtime · verify · erc8004 · replay · bundle · leaderboard |
+| `packages/sdk/` | `0g-nexus-sdk` — crypto · storage · inference · runtime · verify · erc8004 · replay · bundle · leaderboard. **Published on npm** (v0.1.0, Apache-2.0): `npm install 0g-nexus-sdk`. Builds to `dist/` with declarations; `publishConfig` retargets the entry points so the workspace still resolves TS source — publish with `pnpm publish`, never `npm publish` (npm's pack ignores `publishConfig`). |
 | `app/` | Next.js — `/api/*` backend, `/console`, `/proof/[id]`, `/agent/[id]`, `/leaderboard`, `/d/[...slug]` |
 | `NEXUS_UI/` | Cinematic Three.js districts + `nexus-api.js` (the browser ↔ chain bridge + viem wallet) |
 | `scripts/` | gate-checks G1–G4 · demo:* (12 scenarios) · `deploy.ts` · `deploy-erc8004.ts` · `gather-proofs.ts` · `verify-proofs.ts` · `verify-bundle.ts` |

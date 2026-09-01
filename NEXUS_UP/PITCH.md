@@ -100,7 +100,8 @@ Run the SCRIPT A beats, but linger on **ERC-8004 external-agent validation** (th
 - **"Traction plan?"** → "Free Solo-style verification + fiat onboarding via 0G Pay for Web2 users, the shareable proof cards/QR for virality, and ProofPass so other platforms embed us. We measure verified runs and validated external agents, not vanity metrics."
 
 ## Suggested extra things to work on (beyond this layer)
-- **Publish `0g-nexus-sdk` to npm** — platform signal + how others integrate.
+- **`0g-nexus-sdk` is on npm** ✅ (v0.1.0, Apache-2.0) — `npm install 0g-nexus-sdk`, then
+  `verifyReceipt("2")` verifies a live mainnet receipt with no key and no clone.
 - **A2A protocol bridge** — since ERC-8004 extends Google's Agent-to-Agent protocol, make NEXUS agents A2A-discoverable.
 - **"Internet Court" dispute alignment** — map your escrow disputes onto the 0G-backed agent-dispute standard.
 - **Public reputation explorer + API** — reputation-as-data for other dApps.

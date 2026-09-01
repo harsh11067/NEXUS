@@ -7,7 +7,8 @@ What NEXUS does today (shipped + on-chain), what Wave 3 adds, and the ambitious 
 > (`/api/verify`, badge, `/proof/[id]`) · C.15 **Agent Passport** ✅ delivered via the
 > ERC-8004 layer (canonical-registry identity + portable proof-anchored reputation +
 > TEE validations — see `NEXUS_UP/PLAN_NEXT.md` N1) · C.16 **Reputation explorer** ✅
-> live as `/leaderboard` + `/agent/[id]` · C.13 npm publish = human step (`input.md`) ·
+> live as `/leaderboard` + `/agent/[id]` · C.13 **npm publish** ✅ shipped as
+> `0g-nexus-sdk` v0.1.0 (Apache-2.0) — https://www.npmjs.com/package/0g-nexus-sdk ·
 > C.17–20 roadmap (17 is FUTURE.md §3 P0).
 
 ---
@@ -32,7 +33,7 @@ What NEXUS does today (shipped + on-chain), what Wave 3 adds, and the ambitious 
 
 ## C. Platform features (the SaaS turn — post-buildathon, high ambition)
 
-13. **NEXUS SDK (`0g-nexus-sdk`, npm)** — `createAgent`, `runTask`, `getReceiptProof`, `transferAgent`, `cloneAgent`, `verifyReceipt`. Lets any builder integrate verifiable agent trust without touching 0G plumbing. Publishing it is the platform-intent signal the winning projects used.
+13. **NEXUS SDK (`0g-nexus-sdk`, npm)** — `createAgent`, `runTask`, `getReceiptProof`, `transferAgent`, `cloneAgent`, `verifyReceipt`. Lets any builder integrate verifiable agent trust without touching 0G plumbing. Publishing it is the platform-intent signal the winning projects used. **✅ SHIPPED** — `npm install 0g-nexus-sdk` (v0.1.0, Apache-2.0), built to `dist/` with type declarations; a clean outside project verifies mainnet receipt #2 with no key.
 14. **ProofPass API + embeddable badge** — a hosted `verify(receiptId) → {owner, model, policy, payment, repDelta, valid}` endpoint and a drop-in "NEXUS-verified ✓" badge any marketplace/host/DAO can embed. One-click proof next to any agent, anywhere.
 15. **Agent Passport** — a portable, cross-platform identity: token + proof history + reputation, verifiable off any platform. Agents carry their track record with them; the passport gets more valuable the longer it runs verifiably (the moat).
 16. **Reputation explorer** — a public, searchable view of agents ranked by proof-backed reputation, each score drilling into its receipts.
