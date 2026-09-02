@@ -32,33 +32,23 @@ offline bundles are proven on 0G mainnet (see `NEXUS_UP/PLAN_NEXT.md` STATUS,
   agent (#381), portable reputation, deterministic replay, offline bundle. No faucet
   top-up needed any more.
 
-## 1. DECIDE: do you want live *actions* on the deployed site?
+## 1. ✅ DONE — the live site now *does* things (2026-09-03, commit 52e82aa)
 
-The UI now has a **TESTNET / MAINNET switch** (header, every district + `/console`,
-`/leaderboard`, `/proof`), and the server honours it per request. Verification works on
-both networks with no key at all — that part is live right now.
+The header carries a **TESTNET / MAINNET switch** (every district plus `/console`,
+`/leaderboard`, `/proof`, `/agent`), the server honours it per request, and the whole
+app shares one choice.
 
-What is NOT live is *signing*, because production holds no operator key for either
-network (deliberate: env hygiene, and mainnet keys must never sit on Vercel). So
-"Hire Agent", the SoulMint mint and transfer/clone finish with a clear read-only
-message instead of an error trace.
+* **MAINNET (default)** — read-only + verify-everything, exactly as before. No
+  `OG_MAINNET_KEY` on Vercel, so writes fail closed. This is still the claim for judges.
+* **TESTNET** — fully live. Per your approval the Galileo operator vars are on Vercel
+  (`PRIVATE_KEY`, `TRUSTED_SIGNER_KEY`, `OG_COMPUTE_MODE=broker`, `OG_COMPUTE_MODEL`).
+  Proven on the deployed site: a task ran in Sealed Inference, TEE re-verified, and
+  minted **composite receipt #7** on Galileo —
+  https://chainscan-galileo.0g.ai/tx/0x5a077120a4ddeee84d9fdd523ef3bb1bd684f0789febe5ba2924df4b7059a973
 
-To make the full loop clickable for a judge, add the **Galileo testnet** operator vars
-to Vercel (valueless test tokens — mainnet stays unsignable because `OG_MAINNET_KEY`
-is absent, by design):
-
-| var | why |
-|---|---|
-| `PRIVATE_KEY` | testnet operator: persona upload to 0G Storage, receipt minting |
-| `TRUSTED_SIGNER_KEY` | the re-encryption oracle signer (clone / transfer) |
-| `OG_COMPUTE_MODE=broker` + `OG_COMPUTE_MODEL` | sealed inference through the funded Galileo ledger |
-
-Trade-off to accept knowingly: anyone can then POST `…?network=galileo` and spend
-testnet gas / compute credits from that wallet. Nothing of value is at risk; the
-ledger can be drained by traffic.
-
-Leave it as is and the site stays a pure verify-everything deployment — still the
-stronger claim for judging, just not clickable end-to-end.
+Known trade-off you accepted: anyone can POST `…?network=galileo` and spend testnet gas
+and compute credits from that wallet. Valueless tokens; the ledger is drainable by traffic.
+If it ever empties, either top it up or delete the two key vars to return to verify-only.
 
 ## 2. Optional: 0G Pay fiat onboarding (PLAN_NEXT N5)
 Requires a 0G Pay developer account + card test — your call whether to pursue for the
@@ -72,7 +62,8 @@ traction waves. Nothing in the current submission depends on it.
 - [ ] Public X post (draft in `NEXUS_UP/PITCH.md`) + link it in the AKINDO submission.
 - [ ] Confirm AKINDO dashboard Wave dates/fields.
 - [ ] After submission: rotate the tokens that sat in `.env` (Render key, GitHub PAT,
-      both Vercel tokens) **and the npm granular token** used for the publish.
+      both Vercel tokens), **the npm granular token** used for the publish, **and the two
+      Galileo testnet keys now on Vercel** (`PRIVATE_KEY`, `TRUSTED_SIGNER_KEY`).
 
 ## For reference — what a judge verifies with zero setup
 - Verified contracts (7 on mainnet): https://chainscan.0g.ai/address/0x7954e03CB645c8519F8b8Fd880720228ec09D9ae (NexusTEEValidator)
