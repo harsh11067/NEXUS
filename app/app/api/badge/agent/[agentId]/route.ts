@@ -1,4 +1,5 @@
 import { getAgentCard, findIdentity } from "0g-nexus-sdk";
+import { withNet } from "../../../../lib/net";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -21,7 +22,7 @@ function svg(label: string, value: string, color: string): string {
 </svg>`;
 }
 
-export async function GET(_req: Request, { params }: { params: Promise<{ agentId: string }> }) {
+async function getHandler(_req: Request, { params }: { params: Promise<{ agentId: string }> }) {
   const { agentId } = await params;
   let body: string;
   try {
@@ -43,3 +44,5 @@ export async function GET(_req: Request, { params }: { params: Promise<{ agentId
     },
   });
 }
+
+export const GET = withNet(getHandler);

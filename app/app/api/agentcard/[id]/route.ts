@@ -11,6 +11,7 @@ import {
   explorerAddress,
   loadDeployments,
 } from "0g-nexus-sdk";
+import { withNet } from "../../../lib/net";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -19,7 +20,7 @@ export const maxDuration = 120;
 // The public agent card: NEXUS trust state (chain-derived) + the ERC-8004
 // portable identity panel (canonical registry + NEXUS validations), every
 // field independently checkable.
-export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
+async function getHandler(req: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   try {
     const base = new URL(req.url).origin;
@@ -70,3 +71,5 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
     return NextResponse.json({ error: e?.message ?? String(e) }, { status: 404 });
   }
 }
+
+export const GET = withNet(getHandler);

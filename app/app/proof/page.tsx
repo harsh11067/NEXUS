@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { api } from "../lib/client-net";
+import { NetworkSwitch } from "../lib/NetworkSwitch";
 
 export default function ProofEntry() {
   const router = useRouter();
@@ -9,13 +11,16 @@ export default function ProofEntry() {
   const [recent, setRecent] = useState<any[]>([]);
 
   useEffect(() => {
-    fetch("/api/receipts").then((r) => r.json()).then((d) => setRecent(d.receipts ?? [])).catch(() => {});
+    fetch(api("/api/receipts")).then((r) => r.json()).then((d) => setRecent(d.receipts ?? [])).catch(() => {});
   }, []);
 
   return (
     <main style={{ minHeight: "100vh", background: "#04060e", color: "#dce6ff", fontFamily: "ui-sans-serif,system-ui,Inter,sans-serif", padding: "60px 20px" }}>
       <div style={{ maxWidth: 560, margin: "0 auto" }}>
-        <h1 style={{ fontSize: 24 }}>Verify a NEXUS receipt</h1>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
+          <h1 style={{ fontSize: 24, margin: 0 }}>Verify a NEXUS receipt</h1>
+          <NetworkSwitch />
+        </div>
         <p style={{ color: "#8092b8", fontSize: 14 }}>Enter a composite receipt id to see its five on-chain proofs.</p>
         <form onSubmit={(e) => { e.preventDefault(); if (id.trim()) router.push(`/proof/${id.trim()}`); }} style={{ display: "flex", gap: 8, marginTop: 16 }}>
           <input value={id} onChange={(e) => setId(e.target.value)} placeholder="receipt id, e.g. 1"

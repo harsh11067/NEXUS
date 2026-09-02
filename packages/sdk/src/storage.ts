@@ -12,10 +12,14 @@ export interface UploadResult {
   txHash?: string;
 }
 
-let _indexer: Indexer | null = null;
+// keyed by indexer URL: one process can serve both networks (see withNetwork),
+// and a cached testnet indexer must never answer a mainnet request.
+const _indexers = new Map<string, Indexer>();
 function indexer(): Indexer {
-  if (!_indexer) _indexer = new Indexer(config.storageIndexer());
-  return _indexer;
+  const url = config.storageIndexer();
+  let ix = _indexers.get(url);
+  if (!ix) _indexers.set(url, (ix = new Indexer(url)));
+  return ix;
 }
 
 /** Transient network faults (node resets, propagation lag) — retry, don't die. */

@@ -79,12 +79,12 @@
   <div id="ex-orders" style="display:flex;flex-direction:column;gap:7px;margin-top:14px"></div>
   <div style="font-family:'JetBrains Mono';font-size:9.5px;letter-spacing:.18em;color:#6a7da0;text-transform:uppercase;margin:18px 0 9px">Payment verification</div>
   <div style="border:1px solid rgba(52,212,192,0.2);border-radius:12px;padding:13px;background:rgba(52,212,192,0.05)">
-    <div style="display:flex;justify-content:space-between;font-family:'JetBrains Mono';font-size:12px"><span style="color:#9fc6bf">PAY-3F6A-7C9D</span><span style="color:#4ade80">SETTLED</span></div>
+    <div style="display:flex;justify-content:space-between;font-family:'JetBrains Mono';font-size:12px"><span id="ex-pay-id" style="color:#9fc6bf">RECEIPT —</span><span id="ex-pay-status" style="color:#4ade80">LOADING</span></div>
     <div style="display:flex;flex-direction:column;gap:6px;margin-top:10px;font-size:11.5px">
-      <div style="display:flex;justify-content:space-between"><span style="color:#8694b4">Payer</span><span style="color:#cfe9e4">Data Oracle X</span></div>
-      <div style="display:flex;justify-content:space-between"><span style="color:#8694b4">Payee</span><span style="color:#cfe9e4">DeFi Research Pro</span></div>
-      <div style="display:flex;justify-content:space-between"><span style="color:#8694b4">Amount</span><span style="font-family:'JetBrains Mono';color:#eaf1ff">89.76 USDC</span></div>
-      <div style="display:flex;justify-content:space-between"><span style="color:#8694b4">Confirmations</span><span style="font-family:'JetBrains Mono';color:#4ade80">123</span></div>
+      <div style="display:flex;justify-content:space-between"><span style="color:#8694b4">Agent</span><span id="ex-pay-agent" style="color:#cfe9e4">—</span></div>
+      <div style="display:flex;justify-content:space-between"><span style="color:#8694b4">Session</span><span id="ex-pay-session" style="font-family:'JetBrains Mono';color:#cfe9e4">—</span></div>
+      <div style="display:flex;justify-content:space-between"><span style="color:#8694b4">Payment</span><span id="ex-pay-payment" style="font-family:'JetBrains Mono';color:#eaf1ff">—</span></div>
+      <div style="display:flex;justify-content:space-between"><span style="color:#8694b4">Anchored</span><span id="ex-pay-time" style="font-family:'JetBrains Mono';color:#4ade80">—</span></div>
     </div>
   </div>
   <button style="width:100%;margin-top:16px;background:rgba(52,212,192,0.12);border:1px solid rgba(52,212,192,0.34);color:#7fe6dc;font-family:'Manrope';font-weight:600;font-size:13px;padding:11px;border-radius:10px;cursor:pointer">View on Explorer &#8599;</button>
@@ -108,7 +108,7 @@ class Component extends DCLogic {
     ];
     this.buildAnchors();
     this.renderOrders();
-    (async()=>{try{if(!window.NexusAPI)return;const r=await NexusAPI.listReceipts();const paid=r.filter(x=>x.hasPayment);if(paid.length)this._feeds=paid.map(x=>'Escrow settled · receipt #'+x.receiptId+' · agent #'+x.agentId);else if(r.length)this._feeds=r.map(x=>'Session proven · receipt #'+x.receiptId+' · agent #'+x.agentId);}catch(e){}})();
+    this.loadSettlement();
     const feeds = ['Order routed · 0.50 USDC · CoinGecko', 'Escrow locked · 2.00 USDC', 'Fulfillment verified · TEE pass', 'Payment settled · 89.76 USDC', 'Strategy rebalanced · +1.2%'];
     let fi = 0; this._tick = setInterval(() => {
       var F = this._feeds || feeds; fi = (fi + 1) % F.length; const el = document.getElementById('ex-feed'); if (el) el.textContent = F[fi];
@@ -116,6 +116,27 @@ class Component extends DCLogic {
       this.renderOrders();
     }, 1600);
     this.wait();
+  }
+  setText(id, v) { const el = document.getElementById(id); if (el) el.textContent = v; }
+  // The settlement card shows the newest REAL composite receipt on the active
+  // network — no invented payer/amount. "Proof-only" is stated as such when the
+  // receipt carries no payment leg.
+  async loadSettlement() {
+    if (!window.NexusAPI) return;
+    let r = [];
+    try { r = await NexusAPI.listReceipts(); } catch (e) { this.setText('ex-pay-status', 'UNREACHABLE'); return; }
+    const paid = r.filter(x => x.hasPayment);
+    if (paid.length) this._feeds = paid.map(x => 'Escrow settled · receipt #' + x.receiptId + ' · agent #' + x.agentId);
+    else if (r.length) this._feeds = r.map(x => 'Session proven · receipt #' + x.receiptId + ' · agent #' + x.agentId);
+    const top = paid[0] || r[0];
+    if (!top) { this.setText('ex-pay-status', 'NO RECEIPTS'); this.setText('ex-pay-id', 'RECEIPT —'); return; }
+    this._receipt = top;
+    this.setText('ex-pay-id', 'RECEIPT #' + top.receiptId);
+    this.setText('ex-pay-status', top.hasPayment ? 'SETTLED' : 'PROVEN');
+    this.setText('ex-pay-agent', 'Agent #' + top.agentId);
+    this.setText('ex-pay-session', NexusAPI.short(top.sessionId, 6, 4));
+    this.setText('ex-pay-payment', top.hasPayment ? NexusAPI.short(top.paymentId, 6, 4) : 'proof-only');
+    this.setText('ex-pay-time', top.timestamp ? new Date(top.timestamp * 1000).toISOString().slice(0, 16).replace('T', ' ') : '—');
   }
   renderOrders() {
     const wrap = document.getElementById('ex-orders'); if (!wrap) return;

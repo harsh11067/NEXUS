@@ -15,6 +15,7 @@
  * leftover, not an intentional override, and the preset wins. This makes
  * `OG_NETWORK=mainnet pnpm <script>` correct even with a testnet-filled .env.
  */
+import { AsyncLocalStorage } from "node:async_hooks";
 import { readFileSync, existsSync } from "node:fs";
 import { resolve, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -142,8 +143,35 @@ export const NETWORKS: Record<NetworkName, NetworkPreset> = {
   },
 };
 
-/** The network selected by env (see precedence in the header comment). */
-export function networkName(): NetworkName {
+/**
+ * Per-request network override.
+ *
+ * The env answer below is the *process* default. A server that serves both
+ * networks from one process (the NEXUS app: a testnet/mainnet switch in the UI)
+ * wraps each request in `withNetwork()`, so every config lookup inside that
+ * async context resolves to the caller's network — without mutating
+ * process.env, which would leak across concurrent requests.
+ */
+const _networkOverride = new AsyncLocalStorage<NetworkName>();
+
+/** Parse a user-supplied network name; undefined when absent/unrecognised. */
+export function parseNetwork(v: string | null | undefined): NetworkName | undefined {
+  const s = (v ?? "").trim().toLowerCase();
+  if (s === "mainnet") return "mainnet";
+  if (s === "galileo" || s === "testnet") return "galileo";
+  return undefined;
+}
+
+/** Run `fn` with `net` as the active network (no-op when `net` is undefined). */
+export function withNetwork<T>(net: NetworkName | undefined, fn: () => T): T {
+  return net === undefined ? fn() : _networkOverride.run(net, fn);
+}
+
+/**
+ * The process default from env (see precedence in the header comment) —
+ * deliberately blind to any per-request override.
+ */
+export function defaultNetworkName(): NetworkName {
   const explicit = (process.env.OG_NETWORK ?? "").trim().toLowerCase();
   if (explicit === "mainnet") return "mainnet";
   if (explicit === "galileo" || explicit === "testnet") return "galileo";
@@ -151,6 +179,11 @@ export function networkName(): NetworkName {
   if ((process.env.NEXT_PUBLIC_USE_MAINNET ?? "").trim().toLowerCase() === "true") return "mainnet";
   if ((process.env.OG_CHAIN_ID ?? "").trim() === "16661") return "mainnet";
   return "galileo";
+}
+
+/** The active network: the per-request override if one is set, else the env default. */
+export function networkName(): NetworkName {
+  return _networkOverride.getStore() ?? defaultNetworkName();
 }
 
 export function network(): NetworkPreset {
@@ -237,6 +270,38 @@ export const config = {
     deposit: () => Number(env("OG_COMPUTE_DEPOSIT", "0.05")),
   },
 };
+
+/** Everything a client needs to render a network without guessing. */
+export interface NetworkInfo {
+  network: NetworkName;
+  label: string;
+  chainId: number;
+  chainHex: string;
+  rpcUrl: string;
+  explorerUrl: string;
+  storageExplorer: string;
+  /** an operator key for THIS network is configured -> server-signed writes work */
+  canWrite: boolean;
+  /** contract addresses are known for this network */
+  deployed: boolean;
+}
+
+export function networkInfo(net?: NetworkName): NetworkInfo {
+  return withNetwork(net, () => {
+    const chainId = config.chainId();
+    return {
+      network: networkName(),
+      label: config.networkLabel(),
+      chainId,
+      chainHex: "0x" + chainId.toString(16),
+      rpcUrl: config.rpcUrl(),
+      explorerUrl: config.explorerUrl(),
+      storageExplorer: config.storageExplorer(),
+      canWrite: config.hasOperatorKey(),
+      deployed: deploymentsExist(),
+    };
+  });
+}
 
 function normalizeKey(k: string): string {
   return k.startsWith("0x") ? k : `0x${k}`;

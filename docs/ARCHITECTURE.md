@@ -56,6 +56,30 @@ quote verification). Fulfillment verification is **structural/schema**, not sema
 
 ---
 
+### 2.1 One deployment, both networks
+
+The active 0G network is a *request-scoped* property, not a process-wide one.
+
+```
+browser                        app (Next.js)                     SDK
+───────                        ─────────────                     ───
+switch in the header  ──?network=galileo──►  withNet(handler)  ──►  withNetwork(net, fn)
+(localStorage                                (app/app/lib/net.ts)     AsyncLocalStorage
+ NEXUS_NETWORK,                                                       networkName() reads
+ shared by districts                                                  the store, else env
+ and /console)
+```
+
+* `defaultNetworkName()` is the env answer (`OG_NETWORK` / `NEXT_PUBLIC_USE_MAINNET`);
+  `networkName()` returns the per-request override when one is active. No `process.env`
+  mutation, so two concurrent requests on different chains cannot bleed into each other.
+* Caches that are network-shaped are keyed accordingly — the 0G Storage `Indexer` is keyed
+  by indexer URL, deployments by network name.
+* **Choosing a network never chooses a key.** Mainnet writes require `OG_MAINNET_KEY`,
+  testnet writes `PRIVATE_KEY`; absent the key for the active network the deployment is
+  read-only and says so (`canWrite` in `/api/config` and `/api/status`, rendered as
+  `LIVE` / `READ-ONLY` next to the switch).
+
 ## 3. The five 0G primitives (load-bearing, not decorative)
 
 1. **0G Chain** — ERC-7857 identity, sessions, escrow, reputation, composite receipts.

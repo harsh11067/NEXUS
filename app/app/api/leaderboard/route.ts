@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getLeaderboard, config, network } from "0g-nexus-sdk";
+import { withNet } from "../../lib/net";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -8,7 +9,7 @@ export const maxDuration = 60;
 // Ranked purely from on-chain reputation state (proof-only writes) — the
 // server reads chain, the client renders. Nothing client-sortable, nothing
 // self-reported (N-L05).
-export async function GET() {
+async function getHandler(_req: Request) {
   try {
     const rows = await getLeaderboard(50);
     return NextResponse.json({
@@ -21,3 +22,5 @@ export async function GET() {
     return NextResponse.json({ error: e?.message ?? String(e) }, { status: 500 });
   }
 }
+
+export const GET = withNet(getHandler);

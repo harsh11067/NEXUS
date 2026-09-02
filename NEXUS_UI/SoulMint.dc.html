@@ -164,7 +164,8 @@ class Component extends DCLogic {
     next.disabled = true;
     next.innerHTML = '<span style="display:inline-block;width:12px;height:12px;border:2px solid rgba(255,255,255,.35);border-top-color:#fff;border-radius:50%;animation:nxspin .7s linear infinite;vertical-align:-1px"></span> Forging on 0G…';
     phase.textContent = 'Encrypting persona → 0G Storage → minting ERC-7857…';
-    detail.innerHTML = '<div style="color:#cdb6ff;font-size:12px">Running the real ERC-7857 mint on 0G testnet…</div>';
+    const netLabel = (window.NexusAPI && NexusAPI.networkLabel) || '0G';
+    detail.innerHTML = '<div style="color:#cdb6ff;font-size:12px">Running the real ERC-7857 mint on ' + netLabel + '…</div>';
     try {
       if (!window.NexusAPI) throw new Error('API client not loaded');
       // user-owned when a wallet is present (judge owns the agent); server fallback otherwise
@@ -182,8 +183,7 @@ class Component extends DCLogic {
       next.disabled = false;
       next.innerHTML = 'Retry Mint &#8634;';
       next.onclick = () => { this._minted = false; this.mintAgent(); };
-      detail.innerHTML = '<div style="color:#ff8a8a;font-size:12px">Mint failed: ' + (e.message || e) + '</div>' +
-        '<div style="color:#8694b4;font-size:11px;margin-top:6px">Start the API (<code>pnpm api</code>) with a funded <code>.env</code>, then retry.</div>';
+      detail.innerHTML = '<div style="color:#ff8a8a;font-size:12px">Mint failed: ' + (e.message || e) + '</div>';
     }
   }
   renderResult(r) {

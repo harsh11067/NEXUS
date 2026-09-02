@@ -11,6 +11,7 @@ import {
   getAgentCard,
   tierName,
   optionalEnv,
+  defaultNetworkName,
 } from "0g-nexus-sdk";
 import { formatEther } from "ethers";
 
@@ -20,6 +21,8 @@ export async function systemStatus() {
     deployed: deploymentsExist(),
     network: config.network(),
     networkLabel: config.networkLabel(),
+    defaultNetwork: defaultNetworkName(),
+    canWrite: config.hasOperatorKey(),
     chainId: config.chainId(),
     rpcUrl: config.rpcUrl(),
     explorerUrl: config.explorerUrl(),

@@ -32,11 +32,39 @@ offline bundles are proven on 0G mainnet (see `NEXUS_UP/PLAN_NEXT.md` STATUS,
   agent (#381), portable reputation, deterministic replay, offline bundle. No faucet
   top-up needed any more.
 
-## 1. Optional: 0G Pay fiat onboarding (PLAN_NEXT N5)
+## 1. DECIDE: do you want live *actions* on the deployed site?
+
+The UI now has a **TESTNET / MAINNET switch** (header, every district + `/console`,
+`/leaderboard`, `/proof`), and the server honours it per request. Verification works on
+both networks with no key at all — that part is live right now.
+
+What is NOT live is *signing*, because production holds no operator key for either
+network (deliberate: env hygiene, and mainnet keys must never sit on Vercel). So
+"Hire Agent", the SoulMint mint and transfer/clone finish with a clear read-only
+message instead of an error trace.
+
+To make the full loop clickable for a judge, add the **Galileo testnet** operator vars
+to Vercel (valueless test tokens — mainnet stays unsignable because `OG_MAINNET_KEY`
+is absent, by design):
+
+| var | why |
+|---|---|
+| `PRIVATE_KEY` | testnet operator: persona upload to 0G Storage, receipt minting |
+| `TRUSTED_SIGNER_KEY` | the re-encryption oracle signer (clone / transfer) |
+| `OG_COMPUTE_MODE=broker` + `OG_COMPUTE_MODEL` | sealed inference through the funded Galileo ledger |
+
+Trade-off to accept knowingly: anyone can then POST `…?network=galileo` and spend
+testnet gas / compute credits from that wallet. Nothing of value is at risk; the
+ledger can be drained by traffic.
+
+Leave it as is and the site stays a pure verify-everything deployment — still the
+stronger claim for judging, just not clickable end-to-end.
+
+## 2. Optional: 0G Pay fiat onboarding (PLAN_NEXT N5)
 Requires a 0G Pay developer account + card test — your call whether to pursue for the
 traction waves. Nothing in the current submission depends on it.
 
-## 2. Human-only submission items
+## 3. Human-only submission items
 - [ ] Record the ≤3-min demo — script in `NEXUS_UP/PITCH.md` (Script A). New wow-beats
       now live for the 1:15 slot: **validate an external ERC-8004 agent**
       (`pnpm demo:validate-external`) and **RE-RUN THIS PROOF** on `/proof/2`.

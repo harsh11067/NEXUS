@@ -95,7 +95,12 @@ Live mainnet proof index (auto-generated from chain, never hand-typed): **[docs/
 
 Proven live on 16661: mint (encrypted persona on mainnet 0G Storage) · **re-encryption transfer with seller access-loss** · clone + royalty · escrow with over-limit/wrong-merchant blocked on-chain · TTL refund · proof-only reputation (`NotWriter` guard) · **TEE-verified inference receipt with `AlreadyMinted` replay guard** · **ERC-8004 validation loop** (request → sealed run → on-chain TEE-backed response, including for an agent NEVER minted in NEXUS) · **deterministic replay** (same input → byte-identical output → fresh enclave proof) · **offline proof bundles** (verify a receipt air-gapped).
 
-The app targets mainnet when `NEXT_PUBLIC_USE_MAINNET=true` (or `OG_NETWORK=mainnet`), with Galileo testnet as the always-on fallback.
+The app targets mainnet when `NEXT_PUBLIC_USE_MAINNET=true` (or `OG_NETWORK=mainnet`), with Galileo testnet as
+the always-on fallback — and **one deployment serves both**: the `TESTNET / MAINNET` switch in the header sends
+`?network=` with every request, and the server runs that request on the chosen chain (`withNetwork()` in the SDK,
+AsyncLocalStorage — no `process.env` mutation, so concurrent requests never bleed). Selecting a network never
+selects a key: mainnet writes still require `OG_MAINNET_KEY` and testnet writes `PRIVATE_KEY`, so a browser can
+never talk a read-only deployment into signing. The switch shows `LIVE` or `READ-ONLY` for whichever network is active.
 
 ---
 
@@ -119,7 +124,7 @@ All contracts are compiled using Foundry and deployed directly to the **0G Galil
 | Real mainnet mint / transfer / clone / escrow / refund / reputation | ✅ `evidence/mainnet/*` (append-only, re-checkable via `pnpm verify:proofs`) |
 | **Hardware-verified Sealed Inference on mainnet** (TeeML, `processResponse === true`) | ✅ receipt #1, `{provider, chatID}` published for independent re-verification |
 | ProofPass: `/api/verify/[receiptId]` + client-side **RE-VERIFY LIVE** + embeddable badge | ✅ `/proof/1` re-derives all 7 checks from chain + storage + enclave |
-| Network switch with testnet fallback | ✅ `NEXT_PUBLIC_USE_MAINNET` / `OG_NETWORK` |
+| Network switch with testnet fallback | ✅ in-app `TESTNET / MAINNET` switch (per-request `?network=`) + `NEXT_PUBLIC_USE_MAINNET` / `OG_NETWORK` |
 | **ERC-8004 portable identity** (canonical registry, card on 0G Storage, hash on-chain) | ✅ NEXUS agent #1 = ERC-8004 #3531152, `evidence/mainnet/*erc8004-register` |
 | **ERC-8004 TEE validation** — incl. an EXTERNAL (non-NEXUS) agent | ✅ `evidence/mainnet/*erc8004-validate*` (score 100/100, enclave re-verified) |
 | **Portable proof-anchored reputation** in the canonical ERC-8004 Reputation Registry | ✅ `feedbackHash` = NEXUS `receiptHash`; owner self-feedback blocked on-chain |
@@ -155,6 +160,10 @@ pnpm dev                      # → http://localhost:3000
 - `/` — the cinematic NEXUS world (districts)
 - `/console` — operator dashboard: create → run → prove, live profile cards
 - `/proof/<receiptId>` — **verify-in-30s** proof page (5 on-chain facts)
+
+Every one of those carries the `TESTNET / MAINNET` switch, and they share the choice (one
+`NEXUS_NETWORK` localStorage key): flip it in a district and `/console`, `/leaderboard` and
+`/proof` follow you onto the same chain.
 
 ### Use it in your own project
 

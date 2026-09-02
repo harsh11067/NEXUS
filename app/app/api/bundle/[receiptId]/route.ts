@@ -1,4 +1,5 @@
 import { exportProofBundle } from "0g-nexus-sdk";
+import { withNet } from "../../../lib/net";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -7,7 +8,7 @@ export const maxDuration = 120;
 // Download a self-contained offline proof bundle for a receipt. Verify it
 // air-gapped with `pnpm verify:bundle <file>` — the strongest answer to
 // "what if your site lies?": the site hands you the evidence and the math.
-export async function GET(_req: Request, { params }: { params: Promise<{ receiptId: string }> }) {
+async function getHandler(_req: Request, { params }: { params: Promise<{ receiptId: string }> }) {
   const { receiptId } = await params;
   try {
     const bundle = await exportProofBundle(receiptId);
@@ -25,3 +26,5 @@ export async function GET(_req: Request, { params }: { params: Promise<{ receipt
     });
   }
 }
+
+export const GET = withNet(getHandler);

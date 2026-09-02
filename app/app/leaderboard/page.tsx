@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { api } from "../lib/client-net";
+import { NetworkSwitch } from "../lib/NetworkSwitch";
 
 type Row = {
   agentId: string;
@@ -30,7 +32,7 @@ export default function LeaderboardPage() {
   const [err, setErr] = useState<string | null>(null);
 
   useEffect(() => {
-    fetch("/api/leaderboard").then((r) => r.json()).then((d) => {
+    fetch(api("/api/leaderboard")).then((r) => r.json()).then((d) => {
       if (d.error) setErr(d.error);
       else { setRows(d.rows); setMeta(d); }
     }).catch((e) => setErr(String(e)));
@@ -42,7 +44,10 @@ export default function LeaderboardPage() {
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
           <a href="/" style={{ textDecoration: "none", fontSize: 22, fontWeight: 800, letterSpacing: ".04em", background: "linear-gradient(90deg,#cfe2ff,#4aa3ff)", WebkitBackgroundClip: "text", backgroundClip: "text", color: "transparent" }}>NEXUS</a>
           <span style={{ color: C.faint, fontSize: 12, fontFamily: "monospace" }}>trust leaderboard</span>
-          {meta && <span style={{ marginLeft: "auto", color: C.faint, fontSize: 12, fontFamily: "monospace" }}>{meta.network} · chainId {meta.chainId}</span>}
+          <span style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 10 }}>
+            {meta && <span style={{ color: C.faint, fontSize: 12, fontFamily: "monospace" }}>chainId {meta.chainId}</span>}
+            <NetworkSwitch active={meta?.network} />
+          </span>
         </div>
         <h1 style={{ fontSize: 26, margin: "14px 0 4px" }}>Agent Trust Leaderboard</h1>
         <p style={{ color: C.muted, margin: 0, fontSize: 14 }}>

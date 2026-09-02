@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
+import { api } from "../../lib/client-net";
+import { NetworkSwitch } from "../../lib/NetworkSwitch";
 
 type NexusCard = {
   agentId: string; owner: string; creator: string; policyHash: string;
@@ -34,7 +36,7 @@ export default function AgentPage() {
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
-    fetch(`/api/agentcard/${id}`).then((r) => r.json()).then((res) => {
+    fetch(api(`/api/agentcard/${id}`)).then((r) => r.json()).then((res) => {
       if (res.error) setErr(res.error); else setD(res);
     }).catch((e) => setErr(String(e)));
   }, [id]);
@@ -54,7 +56,10 @@ export default function AgentPage() {
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
           <a href="/" style={{ textDecoration: "none", fontSize: 22, fontWeight: 800, letterSpacing: ".04em", background: "linear-gradient(90deg,#cfe2ff,#4aa3ff)", WebkitBackgroundClip: "text", backgroundClip: "text", color: "transparent" }}>NEXUS</a>
           <span style={{ color: C.faint, fontSize: 12, fontFamily: "monospace" }}>public agent card</span>
-          {d && <span style={{ marginLeft: "auto", color: C.faint, fontSize: 12, fontFamily: "monospace" }}>{d.network} · chainId {d.chainId}</span>}
+          <span style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 10 }}>
+            {d && <span style={{ color: C.faint, fontSize: 12, fontFamily: "monospace" }}>chainId {d.chainId}</span>}
+            <NetworkSwitch active={d?.network} />
+          </span>
         </div>
         <h1 style={{ fontSize: 26, margin: "14px 0 4px" }}>Agent #{id}</h1>
         <p style={{ color: C.muted, margin: 0, fontSize: 14 }}>

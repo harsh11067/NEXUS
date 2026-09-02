@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
+import { api } from "../../lib/client-net";
+import { NetworkSwitch } from "../../lib/NetworkSwitch";
 
 type Proof = {
   receiptId: string;
@@ -53,7 +55,7 @@ export default function ProofPage() {
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
-    fetch(`/api/receipts/${id}`).then((r) => r.json()).then((d) => {
+    fetch(api(`/api/receipts/${id}`)).then((r) => r.json()).then((d) => {
       if (d.error) setErr(d.error); else setP(d);
     }).catch((e) => setErr(String(e)));
   }, [id]);
@@ -62,7 +64,7 @@ export default function ProofPage() {
     setVerifying(true);
     setLive(null);
     try {
-      const d = await fetch(`/api/verify/${id}`).then((r) => r.json());
+      const d = await fetch(api(`/api/verify/${id}`)).then((r) => r.json());
       setLive(d.error ? { valid: false, network: "", chainId: 0, checks: [], tee: { provider: "", chatID: "", model: "", anchoredVerified: null, reVerified: null }, error: d.error } : d);
     } catch (e) {
       setLive({ valid: false, network: "", chainId: 0, checks: [], tee: { provider: "", chatID: "", model: "", anchoredVerified: null, reVerified: null }, error: String(e) });
@@ -78,7 +80,7 @@ export default function ProofPage() {
     setReplaying(true);
     setReplay(null);
     try {
-      const r = await fetch(`/api/replay/${id}`, { method: "POST" });
+      const r = await fetch(api(`/api/replay/${id}`), { method: "POST" });
       setReplay(await r.json());
     } catch (e) {
       setReplay({ replayable: false, error: String(e) });
@@ -100,6 +102,7 @@ export default function ProofPage() {
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
           <div style={{ fontSize: 22, fontWeight: 800, letterSpacing: ".04em", background: "linear-gradient(90deg,#cfe2ff,#4aa3ff)", WebkitBackgroundClip: "text", backgroundClip: "text", color: "transparent" }}>NEXUS</div>
           <span style={{ color: C.faint, fontSize: 12, fontFamily: "monospace" }}>verify-in-30s proof</span>
+          <span style={{ marginLeft: "auto" }}><NetworkSwitch active={live?.network || undefined} /></span>
         </div>
         <h1 style={{ fontSize: 26, margin: "14px 0 4px" }}>Composite Receipt #{id}</h1>
         <p style={{ color: C.muted, margin: 0, fontSize: 14 }}>

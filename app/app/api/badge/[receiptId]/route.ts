@@ -1,4 +1,5 @@
 import { verifyReceipt } from "0g-nexus-sdk";
+import { withNet } from "../../../lib/net";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -22,7 +23,7 @@ function svg(label: string, value: string, color: string): string {
 </svg>`;
 }
 
-export async function GET(_req: Request, { params }: { params: Promise<{ receiptId: string }> }) {
+async function getHandler(_req: Request, { params }: { params: Promise<{ receiptId: string }> }) {
   const { receiptId } = await params;
   let body: string;
   try {
@@ -41,3 +42,5 @@ export async function GET(_req: Request, { params }: { params: Promise<{ receipt
     },
   });
 }
+
+export const GET = withNet(getHandler);

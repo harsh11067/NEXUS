@@ -1,6 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { api } from "../lib/client-net";
+import { NetworkSwitch } from "../lib/NetworkSwitch";
 
 type Status = {
   configured: boolean;
@@ -9,6 +11,10 @@ type Status = {
   explorerUrl: string;
   computeMode: string;
   computeReady: boolean;
+  network?: string;
+  defaultNetwork?: string;
+  networkLabel?: string;
+  canWrite?: boolean;
   wallet?: string;
   balance?: string;
   error?: string;
@@ -49,11 +55,11 @@ export default function Page() {
   const [selected, setSelected] = useState<string | null>(null);
 
   const refreshStatus = useCallback(async () => {
-    const r = await fetch("/api/status").then((x) => x.json());
+    const r = await fetch(api("/api/status")).then((x) => x.json());
     setStatus(r);
   }, []);
   const refreshAgents = useCallback(async () => {
-    const r = await fetch("/api/agents").then((x) => x.json());
+    const r = await fetch(api("/api/agents")).then((x) => x.json());
     setAgents(r.agents ?? []);
   }, []);
 
@@ -72,6 +78,7 @@ export default function Page() {
           <span className="tag">verifiable AI agents · 0G</span>
         </div>
         <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
+          <NetworkSwitch active={status?.network} canWrite={status?.canWrite} />
           <a className="chip" href="/leaderboard">🏆 leaderboard</a>
           {status?.wallet && (
             <a className="chip" href={`${explorer}/address/${status.wallet}`} target="_blank" rel="noreferrer">
@@ -143,8 +150,16 @@ function StatusBar({ status }: { status: Status | null }) {
   );
   return (
     <div className="statusbar">
-      {chip(status.configured, status.configured ? "wallet configured" : "PRIVATE_KEY missing")}
+      {chip(
+        status.configured,
+        status.configured
+          ? `operator key configured · ${status.networkLabel ?? status.network ?? ""}`.trim()
+          : `read-only on ${status.networkLabel ?? status.network ?? "this network"} — no operator key`,
+      )}
       {chip(status.deployed, status.deployed ? "contracts deployed" : "not deployed (run pnpm deploy:testnet)")}
+      {status.configured === false && status.defaultNetwork === "mainnet" && (
+        <span className="chip"><span className="dot warn" /> switch to TESTNET to run live actions</span>
+      )}
       {chip(status.computeReady ? true : "warn", `compute: ${status.computeMode}${status.computeReady ? "" : " (key missing)"}`)}
       <span className="chip"><span className="dot ok" /> chain {status.chainId}</span>
     </div>
@@ -171,7 +186,7 @@ function CreatePanel({ ready, onCreated }: { ready: boolean; onCreated: () => vo
         memory: note ? [{ role: "note", content: note }] : [],
         policy: { maxPerTx: "500000000000000", dailyBudget: "5000000000000000", maxTaskTTL: 300, allowedTools: [], bannedActions: ["sendTransaction", "transferFunds"] },
       };
-      const r = await fetch("/api/agents", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(persona) }).then((x) => x.json());
+      const r = await fetch(api("/api/agents"), { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(persona) }).then((x) => x.json());
       if (r.error) throw new Error(r.error);
       setResult(r);
       onCreated();
@@ -225,7 +240,7 @@ function RunPanel({ selected, agent, explorer, onDone }: { selected: string | nu
     if (!selected) return;
     setBusy(true); setError(null); setRes(null);
     try {
-      const r: RunResult = await fetch(`/api/agents/${selected}/run`, {
+      const r: RunResult = await fetch(api(`/api/agents/${selected}/run`), {
         method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ prompt, prove }),
       }).then((x) => x.json());
       if (r.error) throw new Error(r.error);

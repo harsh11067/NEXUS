@@ -1,11 +1,12 @@
 import { NextResponse } from "next/server";
 import { createAgent, getWallet, type AgentPersona } from "0g-nexus-sdk";
 import { listAgents } from "../../lib/server";
+import { withNet } from "../../lib/net";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-export async function GET() {
+async function getHandler(_req: Request) {
   try {
     return NextResponse.json({ agents: await listAgents() });
   } catch (e: any) {
@@ -13,7 +14,7 @@ export async function GET() {
   }
 }
 
-export async function POST(req: Request) {
+async function postHandler(req: Request) {
   try {
     const persona = (await req.json()) as AgentPersona;
     if (!persona?.systemPrompt) {
@@ -34,3 +35,6 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: e?.message ?? String(e) }, { status: 500 });
   }
 }
+
+export const GET = withNet(getHandler);
+export const POST = withNet(postHandler);

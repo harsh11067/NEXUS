@@ -122,9 +122,8 @@ class Component extends DCLogic {
     try { receipts = await NexusAPI.listReceipts(); net = await NexusAPI.network(); } catch (e) { return; }
     if (net) {
       this.setText('ad-att-count', net.totalReceipts);
-      this._minter = net.addresses && net.addresses.CompositeReceiptMinter;
-      const b = document.getElementById('ad-view');
-      if (b && this._minter) b.onclick = () => window.open(NexusAPI.addrUrl(this._minter), '_blank');
+      // "View on chainscan" is wired by nexus-api.js -> the TEE validator that
+      // actually attests these receipts, on the ACTIVE network's explorer.
     }
     if (!receipts.length) return;
     const top = receipts[0];

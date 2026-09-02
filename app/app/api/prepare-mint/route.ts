@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { prepareMint, type AgentPersona } from "0g-nexus-sdk";
+import { withNet } from "../../lib/net";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -7,7 +8,7 @@ export const maxDuration = 120;
 
 // Server encrypts the persona + uploads to 0G Storage, returns the calldata the
 // USER's wallet uses to mint (so the user is ownerOf on-chain).
-export async function POST(req: Request) {
+async function postHandler(req: Request) {
   try {
     const body = await req.json();
     const persona = body?.persona as AgentPersona;
@@ -22,3 +23,5 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: e?.message ?? String(e) }, { status: 500 });
   }
 }
+
+export const POST = withNet(postHandler);
